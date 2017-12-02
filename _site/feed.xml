@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="en" /><updated>2017-12-02T18:31:20+08:00</updated><id>http://localhost:4000///</id><title type="html">zwning’s blog</title><subtitle>Someone's Blog
+</subtitle><author><name>zhangwenning</name></author><entry xml:lang="zh-Hans"><title type="html">nginx rewrite用法</title><link href="http://localhost:4000//2017/11/27/nginx-rewrite.html" rel="alternate" type="text/html" title="nginx rewrite用法" /><published>2017-11-27T00:00:00+08:00</published><updated>2017-11-27T00:00:00+08:00</updated><id>http://localhost:4000//2017/11/27/nginx-rewrite</id><content type="html" xml:base="http://localhost:4000//2017/11/27/nginx-rewrite.html">&lt;p&gt;Nginx 的rewrite 规则&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;作用&lt;/p&gt;
+
+    &lt;p&gt;实现URL的重写以及匹配的URL重定向。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;配置语法&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Syntax: rewrite regex replacement [flag];
+Default: --
+Context: server, location, if
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;正则表达式&lt;/p&gt;
+
+    &lt;p&gt;小括号（） 用于匹配括号之间的内容，通过 $1、$2 调用&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;if ($http_user_agent ~ MSIE) {
+     rewrite ^(.*)$  /msie/$1 break;
+}
+//代理是MSIN的，如果是/test.html ,会跳转到/msin/test.html 页面中
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;flag 标记位&lt;/p&gt;
+
+    &lt;p&gt;标记rewrite的类型&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;类型&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;解释&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;last&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;停止rewrite检测&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;break&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;停止rewrite检测&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;redirect&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;返回302临时重定向，地址栏会显示跳转后的地址&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;pemanent&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;返回301永久重定向，地址栏会显跳转后的地&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;比较flag标记位的last、break&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location ~^/break {
+                rewrite ^/break /static/  break;
+        }
+        location ~^/last {
+                rewrite ^/last /test/ last;
+        }
+        location /test/ {
+                default_type application/json;
+                return 200 '{&quot;status&quot;:&quot;success&quot;, &quot;remote_addr&quot;: $remote_addr}';
+        }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;~ 表示区分大小写的正则匹配。&lt;/p&gt;
+
+&lt;p&gt;访问 `/break` 会匹配第一个location，标志位是 break ，这时nginx会找root目录下的/static/目录的index.html文件，如果没有，返回404，找到显示。&lt;/p&gt;
+
+&lt;p&gt;而访问`/last`会匹配第二个location，标志位是 last ，这时nginx会_重新匹配一个请求URL为/test/的_，匹配第三个location，返回结果。&lt;/p&gt;
+
+&lt;p&gt;比较flag标记位的redirect、last。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location ~^/last {
+                rewrite ^/last /test/ last;
+      #          rewrite ^/last /test/ redirect;
+        }
+        location /test/ {
+                default_type application/json;
+                return 200 '{&quot;status&quot;:&quot;success&quot;, &quot;remote_addr&quot;: $remote_addr}';
+        }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;last在日志中就一条日志，客户端就发送一次请求。&lt;/p&gt;
+
+&lt;p&gt;redirect是有两条日志，其中第一条是状态302，并且请求头中有location，为重定向的地址。第二条返回200。nignx一看是redirect，就重新发送一次请求，从而匹配第三个。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;last日志:
+*   Trying 106.15.231.221...
+* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
+&amp;gt; GET /last HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt; HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;200&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;OK&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Server:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;nginx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Ubuntu&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Date:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Wed&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Nov&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;2017&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;07:49:04&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;GMT&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Type:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;html&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Length:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;165&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Last-Modified:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Wed&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Nov&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;2017&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;02:09:17&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;GMT&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connection:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;keep-alive&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Vary:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Accept-Encoding&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ETag:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;5a0ba1cd-a5&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Accept-Ranges:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;bytes&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;charset=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;utf-8&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;test proxy&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;body&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;background-color:red;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&amp;gt;&lt;/span&gt;this is test proxy&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+
+redirect日志:
+*   Trying 106.15.231.221...
+* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
+&amp;gt; GET /last HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt; HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;302&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Moved&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Temporarily&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Server:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;nginx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Ubuntu&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Date:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Wed&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Nov&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;2017&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;07:51:14&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;GMT&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Type:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;html&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Length:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;170&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Location:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;http:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221:8000&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connection:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;keep-alive&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Ignoring&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;response-body&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connection&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;left&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;intact&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Issue&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;another&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;URL:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;http:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221:8000&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/'&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Found&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;bundle&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;0x7fc91b607150&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Re-using&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;existing&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;!&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(#&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connected&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;8000&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(#&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; GET /test/ HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt; HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;200&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;OK&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Server:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;nginx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Ubuntu&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Date:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Wed&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Nov&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;2017&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;07:51:14&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;GMT&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Type:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;json&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Content-Length:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;51&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connection:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;keep-alive&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Connection&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;106&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;221&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;left&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;intact&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;{&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&quot;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;remote_addr&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;101&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;231&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;137&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;70&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;而redirect 和permanent 也可以重定向到其他的网页。完成重定向&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;rewrite 规则在不同模块下的优先级是不同的。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;执行server 块中rewrite指令&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;执行location 匹配&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;执行location 的rewrite 指令&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;接下来看一个redirect的应用&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location / {
+#                rewrite ^/course-(\d+)-(\d+)-(\d+)\.html$ /course/$1/$2/course_$3.html break;
+#                rewrite  ^/nginx https://www.baidu.com redirect;
+                 if (!-f $request_filename) {
+                             rewrite ^/(.*)$ http://www.baidu.com/$1 redirect;
+                  }
+        }
+        location ~ ^/http_user_agent {
+                echo 'test';
+                return 200 '{&quot;http_user_agent&quot;: &quot;$http_user_agent&quot;, &quot;request_filename&quot;: &quot;$request_filename&quot;, &quot;-f $request_filename&quot;: &quot;-f $request_filename&quot;}';
+        }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;~ ^/http_user_agent 其中 ~ 表示区分大小写的正则匹配，如果这个匹配不成，走通用匹配 /&lt;/p&gt;
+
+&lt;p&gt;先看第一个rewrite，若请求路径为`/course-2-2-2.html`， 因为rewrite 的标志位是break，说明请求静态文件，而请求的静态文件位置为  root/opt/app/code/course/2/2/course_2.html；&lt;/p&gt;
+
+&lt;p&gt;第二个rewrite 是表示 开头以nginx开头，这时会重定向到&lt;a href=&quot;https://www.baidu.com。&quot;&gt;https://www.baidu.com。&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;第三个rewrite，当请求的文件在/root/opt/app/code 中不存在时，这里的 -f 就是判断 请求文件在此目录下是否存在，不存在时重定向到百度页面。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://seanlook.com/2015/05/17/nginx-location-rewrite/&quot; target=&quot;_blank&quot;&gt;nginx配置location总结及rewrite规则写法&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://yuerblog.cc/2017/06/12/nginx-rewrite-problem/&quot; target=&quot;_blank&quot;&gt;nginx配置location总结及rewrite规则写法&lt;/a&gt;&lt;/p&gt;</content><author><name>zhangwenning</name></author><category term="Nginx" /><summary type="html">Nginx 的rewrite 规则
+
+
+  
+    作用
+
+    实现URL的重写以及匹配的URL重定向。
+  
+  
+    配置语法
+  
+
+
+Syntax: rewrite regex replacement [flag];
+Default: --
+Context: server, location, if
+
+
+
+
+  
+    正则表达式
+
+    小括号（） 用于匹配括号之间的内容，通过 $1、$2 调用
+  
+
+
+if ($http_user_agent ~ MSIE) {
+     rewrite ^(.*)$  /msie/$1 break;
+}
+//代理是MSIN的，如果是/test.html ,会跳转到/msin/test.html 页面中
+
+
+
+
+  
+    flag 标记位
+
+    标记rewrite的类型
+  
+
+
+
+  
+    
+      类型
+      解释
+    
+  
+  
+    
+      last
+      停止rewrite检测
+    
+    
+      break
+      停止rewrite检测
+    
+    
+      redirect
+      返回302临时重定向，地址栏会显示跳转后的地址
+    
+    
+      pemanent
+      返回301永久重定向，地址栏会显跳转后的地
+    
+  
+
+
+比较flag标记位的last、break
+
+server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location ~^/break {
+                rewrite ^/break /static/  break;
+        }
+        location ~^/last {
+                rewrite ^/last /test/ last;
+        }
+        location /test/ {
+                default_type application/json;
+                return 200 '{&quot;status&quot;:&quot;success&quot;, &quot;remote_addr&quot;: $remote_addr}';
+        }
+}
+
+
+
+~ 表示区分大小写的正则匹配。
+
+访问 `/break` 会匹配第一个location，标志位是 break ，这时nginx会找root目录下的/static/目录的index.html文件，如果没有，返回404，找到显示。
+
+而访问`/last`会匹配第二个location，标志位是 last ，这时nginx会_重新匹配一个请求URL为/test/的_，匹配第三个location，返回结果。
+
+比较flag标记位的redirect、last。
+
+server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location ~^/last {
+                rewrite ^/last /test/ last;
+      #          rewrite ^/last /test/ redirect;
+        }
+        location /test/ {
+                default_type application/json;
+                return 200 '{&quot;status&quot;:&quot;success&quot;, &quot;remote_addr&quot;: $remote_addr}';
+        }
+}
+
+
+
+last在日志中就一条日志，客户端就发送一次请求。
+
+redirect是有两条日志，其中第一条是状态302，并且请求头中有location，为重定向的地址。第二条返回200。nignx一看是redirect，就重新发送一次请求，从而匹配第三个。
+
+last日志:
+*   Trying 106.15.231.221...
+* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
+&amp;gt; GET /last HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&amp;lt; HTTP/1.1 200 OK
+&amp;lt; Server: nginx/1.10.3 (Ubuntu)
+&amp;lt; Date: Wed, 15 Nov 2017 07:49:04 GMT
+&amp;lt; Content-Type: text/html
+&amp;lt; Content-Length: 165
+&amp;lt; Last-Modified: Wed, 15 Nov 2017 02:09:17 GMT
+&amp;lt; Connection: keep-alive
+&amp;lt; Vary: Accept-Encoding
+&amp;lt; ETag: &quot;5a0ba1cd-a5&quot;
+&amp;lt; Accept-Ranges: bytes
+&amp;lt;
+&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+    &amp;lt;meta charset=&quot;utf-8&quot;&amp;gt;
+    &amp;lt;title&amp;gt;test proxy&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body style=&quot;background-color:red;&quot;&amp;gt;
+    &amp;lt;h1&amp;gt;this is test proxy&amp;lt;/h1&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+
+redirect日志:
+*   Trying 106.15.231.221...
+* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
+&amp;gt; GET /last HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&amp;lt; HTTP/1.1 302 Moved Temporarily
+&amp;lt; Server: nginx/1.10.3 (Ubuntu)
+&amp;lt; Date: Wed, 15 Nov 2017 07:51:14 GMT
+&amp;lt; Content-Type: text/html
+&amp;lt; Content-Length: 170
+&amp;lt; Location: http://106.15.231.221:8000/test/
+&amp;lt; Connection: keep-alive
+&amp;lt;
+* Ignoring the response-body
+* Connection #0 to host 106.15.231.221 left intact
+* Issue another request to this URL: 'http://106.15.231.221:8000/test/'
+* Found bundle for host 106.15.231.221: 0x7fc91b607150
+* Re-using existing connection! (#0) with host 106.15.231.221
+* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
+&amp;gt; GET /test/ HTTP/1.1
+&amp;gt; Host: 106.15.231.221:8000
+&amp;gt; User-Agent: curl/7.43.0
+&amp;gt; Accept: */*
+&amp;gt;
+&amp;lt; HTTP/1.1 200 OK
+&amp;lt; Server: nginx/1.10.3 (Ubuntu)
+&amp;lt; Date: Wed, 15 Nov 2017 07:51:14 GMT
+&amp;lt; Content-Type: application/json
+&amp;lt; Content-Length: 51
+&amp;lt; Connection: keep-alive
+&amp;lt;
+* Connection #0 to host 106.15.231.221 left intact
+{&quot;status&quot;:&quot;success&quot;, &quot;remote_addr&quot;: 101.231.137.70}
+
+
+
+而redirect 和permanent 也可以重定向到其他的网页。完成重定向
+
+
+  
+    rewrite 规则在不同模块下的优先级是不同的。
+
+    
+      
+        执行server 块中rewrite指令
+      
+      
+        执行location 匹配
+      
+      
+        执行location 的rewrite 指令
+      
+    
+  
+
+
+接下来看一个redirect的应用
+
+server {
+        listen  8000 ;
+        server_name localhost;
+        root /root/opt/app/code;
+        location / {
+#                rewrite ^/course-(\d+)-(\d+)-(\d+)\.html$ /course/$1/$2/course_$3.html break;
+#                rewrite  ^/nginx https://www.baidu.com redirect;
+                 if (!-f $request_filename) {
+                             rewrite ^/(.*)$ http://www.baidu.com/$1 redirect;
+                  }
+        }
+        location ~ ^/http_user_agent {
+                echo 'test';
+                return 200 '{&quot;http_user_agent&quot;: &quot;$http_user_agent&quot;, &quot;request_filename&quot;: &quot;$request_filename&quot;, &quot;-f $request_filename&quot;: &quot;-f $request_filename&quot;}';
+        }
+}
+
+
+
+~ ^/http_user_agent 其中 ~ 表示区分大小写的正则匹配，如果这个匹配不成，走通用匹配 /
+
+先看第一个rewrite，若请求路径为`/course-2-2-2.html`， 因为rewrite 的标志位是break，说明请求静态文件，而请求的静态文件位置为  root/opt/app/code/course/2/2/course_2.html；
+
+第二个rewrite 是表示 开头以nginx开头，这时会重定向到https://www.baidu.com。
+
+第三个rewrite，当请求的文件在/root/opt/app/code 中不存在时，这里的 -f 就是判断 请求文件在此目录下是否存在，不存在时重定向到百度页面。
+
+nginx配置location总结及rewrite规则写法
+
+nginx配置location总结及rewrite规则写法</summary></entry></feed>

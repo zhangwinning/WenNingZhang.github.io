@@ -14,7 +14,7 @@
 ## Base settings ##
 # url:  #the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl: /
-title: Someone's blog
+title: zwning's blog
 description: > #this means to ignore newlines until "nav_lists:"
   Someone's Blog
 
@@ -41,7 +41,7 @@ timezone: Asia/Shanghai
 
 ## Author & social ##
 author:
-  name: Someone
+  name: zhangwenning
   # email:  #your Email address e.g. someone@site.com
   # facebook:  #your Facebook username
   # twitter:  #your Twitter username
@@ -60,9 +60,9 @@ disqus:
 
 ## Reading quantity (LeanCloud) ##
 leancloud:
-  # app_id:  #LeanCloud App id
-  # app_key:  #LeanCloud App key
-  # app_class:  #LeanCloud App class
+   app_id:  nrXA7LIkWRENT2JhjcsfO7Du-gzGzoHsz
+   app_key:  til2L3khzfv0JOezoSOuEXdu
+   app_class:  blog
 
 # mathjax: true
 
