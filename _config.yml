@@ -32,7 +32,7 @@ paths:
   rss:  /feed.xml
 
 ## GitHub repository (if the site is hosted by GitHub) ##
-repository: https://github.com/WenNingZhang/WenNingZhang.github.io.git
+repository: WenNingZhang/WenNingZhang.github.io
 repository_tree: master
 
 ## Language & timezone ##
