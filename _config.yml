@@ -52,8 +52,8 @@ author:
   # linkedin:  #your Linkedin username
 
 ## Comment system (Disqus) ##
-#disqus:
-#  shortname: kitian616-github-io #the Disqus shortname for the site
+disqus:
+  shortname: wenningzhanggithubio #the Disqus shortname for the site
 
 ## Google Analytics ##
 #ga_tracking_id: UA-71907556-1 #Google analytics id for the site
