@@ -1,13 +1,18 @@
 ---
 layout: post
-title: nginx rewrite用法
-key: 20171127
+title: Nginx rewrite用法
+key: 10004
 tags: Nginx
-lang: zh-Hans
+category: blog
+date: 2017-12-03T16:26:21+08:00
+modify_date: 2017-12-03T16:26:21+08:00
 ---
 
-Nginx 的rewrite 规则
+  实现URL的重写以及匹配的URL重定向。
 
+<!--more-->
+
+## 基本知识
 * 作用
 
   实现URL的重写以及匹配的URL重定向。
@@ -168,6 +173,7 @@ redirect日志:
 
   * 执行location 的rewrite 指令
 
+## 实践
 接下来看一个redirect的应用
 
 ```

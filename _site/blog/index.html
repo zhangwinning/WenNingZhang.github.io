@@ -138,246 +138,11 @@
           
           
           
-          <h1><a href="/2017/11/27/nginx-rewrite.html">nginx rewrite用法</a></h1>
+          <h1><a href="/blog/2017/12/03/class-in-JavaScript.html">Nginx rewrite用法</a></h1>
           <div class="m-article-content">
             
-              <p>Nginx 的rewrite 规则</p>
+              <p>实现URL的重写以及匹配的URL重定向。</p>
 
-<ul>
-  <li>
-    <p>作用</p>
-
-    <p>实现URL的重写以及匹配的URL重定向。</p>
-  </li>
-  <li>
-    <p>配置语法</p>
-  </li>
-</ul>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>Syntax: rewrite regex replacement [flag];
-Default: --
-Context: server, location, if
-</code></pre>
-</div>
-
-<ul>
-  <li>
-    <p>正则表达式</p>
-
-    <p>小括号（） 用于匹配括号之间的内容，通过 $1、$2 调用</p>
-  </li>
-</ul>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>if ($http_user_agent ~ MSIE) {
-     rewrite ^(.*)$  /msie/$1 break;
-}
-//代理是MSIN的，如果是/test.html ,会跳转到/msin/test.html 页面中
-</code></pre>
-</div>
-
-<ul>
-  <li>
-    <p>flag 标记位</p>
-
-    <p>标记rewrite的类型</p>
-  </li>
-</ul>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: center">类型</th>
-      <th style="text-align: center">解释</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center">last</td>
-      <td style="text-align: center">停止rewrite检测</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">break</td>
-      <td style="text-align: center">停止rewrite检测</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">redirect</td>
-      <td style="text-align: center">返回302临时重定向，地址栏会显示跳转后的地址</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">pemanent</td>
-      <td style="text-align: center">返回301永久重定向，地址栏会显跳转后的地</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>比较flag标记位的last、break</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>server {
-        listen  8000 ;
-        server_name localhost;
-        root /root/opt/app/code;
-        location ~^/break {
-                rewrite ^/break /static/  break;
-        }
-        location ~^/last {
-                rewrite ^/last /test/ last;
-        }
-        location /test/ {
-                default_type application/json;
-                return 200 '{"status":"success", "remote_addr": $remote_addr}';
-        }
-}
-</code></pre>
-</div>
-
-<p>~ 表示区分大小写的正则匹配。</p>
-
-<p>访问 `/break` 会匹配第一个location，标志位是 break ，这时nginx会找root目录下的/static/目录的index.html文件，如果没有，返回404，找到显示。</p>
-
-<p>而访问`/last`会匹配第二个location，标志位是 last ，这时nginx会_重新匹配一个请求URL为/test/的_，匹配第三个location，返回结果。</p>
-
-<p>比较flag标记位的redirect、last。</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>server {
-        listen  8000 ;
-        server_name localhost;
-        root /root/opt/app/code;
-        location ~^/last {
-                rewrite ^/last /test/ last;
-      #          rewrite ^/last /test/ redirect;
-        }
-        location /test/ {
-                default_type application/json;
-                return 200 '{"status":"success", "remote_addr": $remote_addr}';
-        }
-}
-</code></pre>
-</div>
-
-<p>last在日志中就一条日志，客户端就发送一次请求。</p>
-
-<p>redirect是有两条日志，其中第一条是状态302，并且请求头中有location，为重定向的地址。第二条返回200。nignx一看是redirect，就重新发送一次请求，从而匹配第三个。</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>last日志:
-*   Trying 106.15.231.221...
-* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
-&gt; GET /last HTTP/1.1
-&gt; Host: 106.15.231.221:8000
-&gt; User-Agent: curl/7.43.0
-&gt; Accept: */*
-&gt;
-<span class="nt">&lt; HTTP</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">1</span> <span class="na">200</span> <span class="na">OK</span>
-<span class="err">&lt;</span> <span class="na">Server:</span> <span class="na">nginx</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">10</span><span class="err">.</span><span class="na">3</span> <span class="err">(</span><span class="na">Ubuntu</span><span class="err">)</span>
-<span class="err">&lt;</span> <span class="na">Date:</span> <span class="na">Wed</span><span class="err">,</span> <span class="na">15</span> <span class="na">Nov</span> <span class="na">2017</span> <span class="na">07:49:04</span> <span class="na">GMT</span>
-<span class="err">&lt;</span> <span class="na">Content-Type:</span> <span class="na">text</span><span class="err">/</span><span class="na">html</span>
-<span class="err">&lt;</span> <span class="na">Content-Length:</span> <span class="na">165</span>
-<span class="err">&lt;</span> <span class="na">Last-Modified:</span> <span class="na">Wed</span><span class="err">,</span> <span class="na">15</span> <span class="na">Nov</span> <span class="na">2017</span> <span class="na">02:09:17</span> <span class="na">GMT</span>
-<span class="err">&lt;</span> <span class="na">Connection:</span> <span class="na">keep-alive</span>
-<span class="err">&lt;</span> <span class="na">Vary:</span> <span class="na">Accept-Encoding</span>
-<span class="err">&lt;</span> <span class="na">ETag:</span> <span class="err">"</span><span class="na">5a0ba1cd-a5</span><span class="err">"</span>
-<span class="err">&lt;</span> <span class="na">Accept-Ranges:</span> <span class="na">bytes</span>
-<span class="err">&lt;</span>
-<span class="err">&lt;</span><span class="na">html</span><span class="nt">&gt;</span>
-<span class="nt">&lt;head&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;title&gt;</span>test proxy<span class="nt">&lt;/title&gt;</span>
-<span class="nt">&lt;/head&gt;</span>
-<span class="nt">&lt;body</span> <span class="na">style=</span><span class="s">"background-color:red;"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;h1&gt;</span>this is test proxy<span class="nt">&lt;/h1&gt;</span>
-<span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
-
-redirect日志:
-*   Trying 106.15.231.221...
-* Connected to 106.15.231.221 (106.15.231.221) port 8000 (#0)
-&gt; GET /last HTTP/1.1
-&gt; Host: 106.15.231.221:8000
-&gt; User-Agent: curl/7.43.0
-&gt; Accept: */*
-&gt;
-<span class="nt">&lt; HTTP</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">1</span> <span class="na">302</span> <span class="na">Moved</span> <span class="na">Temporarily</span>
-<span class="err">&lt;</span> <span class="na">Server:</span> <span class="na">nginx</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">10</span><span class="err">.</span><span class="na">3</span> <span class="err">(</span><span class="na">Ubuntu</span><span class="err">)</span>
-<span class="err">&lt;</span> <span class="na">Date:</span> <span class="na">Wed</span><span class="err">,</span> <span class="na">15</span> <span class="na">Nov</span> <span class="na">2017</span> <span class="na">07:51:14</span> <span class="na">GMT</span>
-<span class="err">&lt;</span> <span class="na">Content-Type:</span> <span class="na">text</span><span class="err">/</span><span class="na">html</span>
-<span class="err">&lt;</span> <span class="na">Content-Length:</span> <span class="na">170</span>
-<span class="err">&lt;</span> <span class="na">Location:</span> <span class="na">http:</span><span class="err">//</span><span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221:8000</span><span class="err">/</span><span class="na">test</span><span class="err">/</span>
-<span class="err">&lt;</span> <span class="na">Connection:</span> <span class="na">keep-alive</span>
-<span class="err">&lt;</span>
-<span class="err">*</span> <span class="na">Ignoring</span> <span class="na">the</span> <span class="na">response-body</span>
-<span class="err">*</span> <span class="na">Connection</span> <span class="err">#</span><span class="na">0</span> <span class="na">to</span> <span class="na">host</span> <span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221</span> <span class="na">left</span> <span class="na">intact</span>
-<span class="err">*</span> <span class="na">Issue</span> <span class="na">another</span> <span class="na">request</span> <span class="na">to</span> <span class="na">this</span> <span class="na">URL:</span> <span class="err">'</span><span class="na">http:</span><span class="err">//</span><span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221:8000</span><span class="err">/</span><span class="na">test</span><span class="err">/'</span>
-<span class="err">*</span> <span class="na">Found</span> <span class="na">bundle</span> <span class="na">for</span> <span class="na">host</span> <span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221:</span> <span class="na">0x7fc91b607150</span>
-<span class="err">*</span> <span class="na">Re-using</span> <span class="na">existing</span> <span class="na">connection</span><span class="err">!</span> <span class="err">(#</span><span class="na">0</span><span class="err">)</span> <span class="na">with</span> <span class="na">host</span> <span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221</span>
-<span class="err">*</span> <span class="na">Connected</span> <span class="na">to</span> <span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221</span> <span class="err">(</span><span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221</span><span class="err">)</span> <span class="na">port</span> <span class="na">8000</span> <span class="err">(#</span><span class="na">0</span><span class="err">)</span>
-<span class="nt">&gt;</span> GET /test/ HTTP/1.1
-&gt; Host: 106.15.231.221:8000
-&gt; User-Agent: curl/7.43.0
-&gt; Accept: */*
-&gt;
-<span class="nt">&lt; HTTP</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">1</span> <span class="na">200</span> <span class="na">OK</span>
-<span class="err">&lt;</span> <span class="na">Server:</span> <span class="na">nginx</span><span class="err">/</span><span class="na">1</span><span class="err">.</span><span class="na">10</span><span class="err">.</span><span class="na">3</span> <span class="err">(</span><span class="na">Ubuntu</span><span class="err">)</span>
-<span class="err">&lt;</span> <span class="na">Date:</span> <span class="na">Wed</span><span class="err">,</span> <span class="na">15</span> <span class="na">Nov</span> <span class="na">2017</span> <span class="na">07:51:14</span> <span class="na">GMT</span>
-<span class="err">&lt;</span> <span class="na">Content-Type:</span> <span class="na">application</span><span class="err">/</span><span class="na">json</span>
-<span class="err">&lt;</span> <span class="na">Content-Length:</span> <span class="na">51</span>
-<span class="err">&lt;</span> <span class="na">Connection:</span> <span class="na">keep-alive</span>
-<span class="err">&lt;</span>
-<span class="err">*</span> <span class="na">Connection</span> <span class="err">#</span><span class="na">0</span> <span class="na">to</span> <span class="na">host</span> <span class="na">106</span><span class="err">.</span><span class="na">15</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">221</span> <span class="na">left</span> <span class="na">intact</span>
-<span class="err">{"</span><span class="na">status</span><span class="err">"</span><span class="na">:</span><span class="err">"</span><span class="na">success</span><span class="err">",</span> <span class="err">"</span><span class="na">remote_addr</span><span class="err">"</span><span class="na">:</span> <span class="na">101</span><span class="err">.</span><span class="na">231</span><span class="err">.</span><span class="na">137</span><span class="err">.</span><span class="na">70</span><span class="err">}</span>
-</code></pre>
-</div>
-
-<p>而redirect 和permanent 也可以重定向到其他的网页。完成重定向</p>
-
-<ul>
-  <li>
-    <p>rewrite 规则在不同模块下的优先级是不同的。</p>
-
-    <ul>
-      <li>
-        <p>执行server 块中rewrite指令</p>
-      </li>
-      <li>
-        <p>执行location 匹配</p>
-      </li>
-      <li>
-        <p>执行location 的rewrite 指令</p>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<p>接下来看一个redirect的应用</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>server {
-        listen  8000 ;
-        server_name localhost;
-        root /root/opt/app/code;
-        location / {
-#                rewrite ^/course-(\d+)-(\d+)-(\d+)\.html$ /course/$1/$2/course_$3.html break;
-#                rewrite  ^/nginx https://www.baidu.com redirect;
-                 if (!-f $request_filename) {
-                             rewrite ^/(.*)$ http://www.baidu.com/$1 redirect;
-                  }
-        }
-        location ~ ^/http_user_agent {
-                echo 'test';
-                return 200 '{"http_user_agent": "$http_user_agent", "request_filename": "$request_filename", "-f $request_filename": "-f $request_filename"}';
-        }
-}
-</code></pre>
-</div>
-
-<p>~ ^/http_user_agent 其中 ~ 表示区分大小写的正则匹配，如果这个匹配不成，走通用匹配 /</p>
-
-<p>先看第一个rewrite，若请求路径为`/course-2-2-2.html`， 因为rewrite 的标志位是break，说明请求静态文件，而请求的静态文件位置为  root/opt/app/code/course/2/2/course_2.html；</p>
-
-<p>第二个rewrite 是表示 开头以nginx开头，这时会重定向到<a href="https://www.baidu.com。">https://www.baidu.com。</a></p>
-
-<p>第三个rewrite，当请求的文件在/root/opt/app/code 中不存在时，这里的 -f 就是判断 请求文件在此目录下是否存在，不存在时重定向到百度页面。</p>
-
-<p><a href="http://seanlook.com/2015/05/17/nginx-location-rewrite/" target="_blank">nginx配置location总结及rewrite规则写法</a></p>
-
-<p><a href="https://yuerblog.cc/2017/06/12/nginx-rewrite-problem/" target="_blank">nginx配置location总结及rewrite规则写法</a></p>
 
             
           </div>
@@ -388,7 +153,7 @@ redirect日志:
 
 
 
-          <a href="/2017/11/27/nginx-rewrite.html">点我阅读更多...</a>
+          <a href="/blog/2017/12/03/class-in-JavaScript.html">点我阅读更多...</a>
           <div class="m-article-data clearfix">
 	
     <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -415,7 +180,7 @@ redirect日志:
   <div class="other-wrapper">
     
       <div class="view-wrapper">
-        <span class="article-view" id="post-key-20171127">0
+        <span class="article-view" id="post-key-10004">0
         </span> views
       </div>
     
@@ -426,7 +191,7 @@ redirect日志:
 
 
       
-        <span class="article-meta">2017年 11月27日</span>
+        <span class="article-meta">2017年 12月03日</span>
       
     </div>
   </div>
