@@ -12,11 +12,11 @@
 #    `--'   `----''--'   '--' `--'
 
 ## Base settings ##
-# url:  #the base hostname & protocol for your site e.g. https://www.someone.com
+url: http://www.zhangwenning.top #the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl: /
-title: zwning's blog
+title: zhangwenning's Blog
 description: > #this means to ignore newlines until "nav_lists:"
-  Someone's Blog
+    zhangwenning's Blog
 
 nav_lists:
   - titles:
@@ -24,39 +24,39 @@ nav_lists:
       zh: 关于
       zh-Hans: 关于
       zh-Hant: 關於
-    url: /about.html
+    url: /blog/about.html
 
-# paths:
-#   home: /
-#   all:  /all.html
-#   rss:  /feed.xml
+paths:
+  home: /blog
+  all:  /blog/all.html
+  rss:  /feed.xml
 
 ## GitHub repository (if the site is hosted by GitHub) ##
-# repository:  #e.g. someone/someone.github.io
-# repository_tree:  #e.g. master
+repository: https://github.com/WenNingZhang/WenNingZhang.github.io.git
+repository_tree: master
 
 ## Language & timezone ##
-lang: en #the language of your site, eg: en(English), zh(简体中文), zh-Hans(简体中文), zh-Hant(繁體中文)
+lang: zh #the language of your site, eg: en(English), zh(简体中文), zh-Hans(简体中文), zh-Hant(繁體中文)
 timezone: Asia/Shanghai
 
 ## Author & social ##
 author:
-  name: zhangwenning
-  # email:  #your Email address e.g. someone@site.com
+  name: "zhangwenning"
+  email: 1527841714@qq.com
   # facebook:  #your Facebook username
-  # twitter:  #your Twitter username
-  # github:  #your GitHub username
-  # googleplus:  #your Google+ username
-  # weibo:  #your Weibo username
-  # douban:  #your Douban username
+  # twitter: kitian616
+  github:  WenNingZhang
+#  googleplus: 101827554735084402671
+  weibo: 3898699581
+#  douban: kitian616
   # linkedin:  #your Linkedin username
 
 ## Comment system (Disqus) ##
-disqus:
-  # shortname:  #the Disqus shortname for the site
+#disqus:
+#  shortname: kitian616-github-io #the Disqus shortname for the site
 
 ## Google Analytics ##
-# ga_tracking_id:  #Google analytics id for the site
+#ga_tracking_id: UA-71907556-1 #Google analytics id for the site
 
 ## Reading quantity (LeanCloud) ##
 leancloud:
@@ -67,12 +67,12 @@ leancloud:
 # mathjax: true
 
 ## Paginate ##
-paginate: 5
+paginate: 7
 paginate_path: /blog/page:num
 
 ## Post excerpts ##
 excerpt_separator: <!--more-->
-excerpt_type: text # text | html
+excerpt_type: html # text | html
 
 ## Build ##
 markdown: kramdown
@@ -109,4 +109,3 @@ server_url: "0.0.0.0"
 
 ## Development ##
 isdebug: false
-theme: jekyll-theme-cayman

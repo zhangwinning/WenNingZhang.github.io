@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="en" /><updated>2017-12-02T18:31:20+08:00</updated><id>http://localhost:4000///</id><title type="html">zwning’s blog</title><subtitle>Someone's Blog
-</subtitle><author><name>zhangwenning</name></author><entry xml:lang="zh-Hans"><title type="html">nginx rewrite用法</title><link href="http://localhost:4000//2017/11/27/nginx-rewrite.html" rel="alternate" type="text/html" title="nginx rewrite用法" /><published>2017-11-27T00:00:00+08:00</published><updated>2017-11-27T00:00:00+08:00</updated><id>http://localhost:4000//2017/11/27/nginx-rewrite</id><content type="html" xml:base="http://localhost:4000//2017/11/27/nginx-rewrite.html">&lt;p&gt;Nginx 的rewrite 规则&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-12-03T12:21:09+08:00</updated><id>http://localhost:4000///</id><title type="html">zhangwenning’s Blog</title><subtitle>zhangwenning's Blog
+</subtitle><author><name>zhangwenning</name><email>1527841714@qq.com</email></author><entry xml:lang="zh-Hans"><title type="html">nginx rewrite用法</title><link href="http://localhost:4000//2017/11/27/nginx-rewrite.html" rel="alternate" type="text/html" title="nginx rewrite用法" /><published>2017-11-27T00:00:00+08:00</published><updated>2017-11-27T00:00:00+08:00</updated><id>http://localhost:4000//2017/11/27/nginx-rewrite</id><content type="html" xml:base="http://localhost:4000//2017/11/27/nginx-rewrite.html">&lt;p&gt;Nginx 的rewrite 规则&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -235,7 +235,7 @@ redirect日志:
 
 &lt;p&gt;&lt;a href=&quot;http://seanlook.com/2015/05/17/nginx-location-rewrite/&quot; target=&quot;_blank&quot;&gt;nginx配置location总结及rewrite规则写法&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://yuerblog.cc/2017/06/12/nginx-rewrite-problem/&quot; target=&quot;_blank&quot;&gt;nginx配置location总结及rewrite规则写法&lt;/a&gt;&lt;/p&gt;</content><author><name>zhangwenning</name></author><category term="Nginx" /><summary type="html">Nginx 的rewrite 规则
+&lt;p&gt;&lt;a href=&quot;https://yuerblog.cc/2017/06/12/nginx-rewrite-problem/&quot; target=&quot;_blank&quot;&gt;nginx配置location总结及rewrite规则写法&lt;/a&gt;&lt;/p&gt;</content><author><name>zhangwenning</name><email>1527841714@qq.com</email></author><category term="Nginx" /><summary type="html">Nginx 的rewrite 规则
 
 
   

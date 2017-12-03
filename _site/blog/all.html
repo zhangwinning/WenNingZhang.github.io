@@ -13,10 +13,9 @@
 
 
 
-<title>404 - zhangwenning's Blog</title>
-<meta name="description" content="zhangwenning's Blog
-">
-<link rel="canonical" href="http://localhost:4000/404.html">
+<title>All Posts - zhangwenning's Blog</title>
+<meta name="description" content="zhangwenning">
+<link rel="canonical" href="http://localhost:4000/blog/all.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="zhangwenning's Blog" href="http://localhost:4000/feed.xml">
@@ -131,11 +130,185 @@
   </nav>
 </header>
 
-  <div class="m-page-main"><div class="m-error-404">
+  <div class="m-page-main"><div class="m-all">
   <div class="main">
-    <h1>404</h1>
+    
+
+
+
+
+
+
+    <h1 class="js-page-heading">All Posts</h1>
+    
+
+
+
+
+
+
+<div class="m-tags">
+  <ul class="inline-list">
+    <li>
+      <button type="button" class="js-article-tag js-tag-show-all all round-rect-button" onclick="tagSelect('')">Show All
+        <div class="tag-count">1</div>
+      </button>
+    </li>
+    
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <li><button type="button" class="js-article-tag tag-1 round-rect-button"
+        data-tag="Nginx" onclick="tagSelect('Nginx')">
+          <span>Nginx</span><div class="tag-count">1</div>
+        </button>
+      </li>
+    
+  </ul>
+</div>
+
+    <!--group by year: http://stackoverflow.com/questions/19086284/jekyll-liquid-templating-how-to-group-blog-posts-by-year-->
+    <section class="js-year-wrapper">
+      
+        
+        
+          
+          <section id="2017">
+          <h2 class="year-title" id="year-2017">2017</h2>
+          <ul class="year-list">
+          
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+        <li class="js-post-block" data-tag="Nginx">
+          <span class="post-date">11月27日</span>
+          <a class="post-link" href="/2017/11/27/nginx-rewrite.html">nginx rewrite用法</a>
+        </li>
+        </ul></section>
+      
+    </section>
   </div>
-</div></div>
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript">
+  // function queryString is copied from
+  // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-url-parameter#answer-979995
+  function queryString() {
+    // This function is anonymous, is executed immediately and
+    // the return value is assigned to QueryString!
+    var i = 0,
+      queryObj = {},
+      pair;
+    var queryStr = window.location.search.substring(1);
+    var queryArr = queryStr.split('&');
+    for (i = 0; i < queryArr.length; i++) {
+      pair = queryArr[i].split('=');
+      // If first entry with this name
+      if (typeof queryObj[pair[0]] === 'undefined') {
+        queryObj[pair[0]] = pair[1];
+        // If second entry with this name
+      } else if (typeof queryObj[pair[0]] === 'string') {
+        queryObj[pair[0]] = [queryObj[pair[0]], pair[1]];
+        // If third or later entry with this name
+      } else {
+        queryObj[pair[0]].push(pair[1]);
+      }
+    }
+    return queryObj;
+  }
+
+  $(function() {
+    var $pageHeading = $('.js-page-heading');
+    var $articleTag = $('.js-article-tag');
+    var $tagShowAll = $('.js-tag-show-all');
+    var $postBlock = $('.js-post-block');
+    var $yearSection = $('.js-year-wrapper section');
+
+    window.tagSelect = function(tag) {
+      var i = 0,
+        flag = false,
+        cur, tagStr = '',
+        tags = [],
+        _tag = '',
+        lis = [];
+      if (tag === undefined || tag === '') {
+        $pageHeading.text('All Posts');
+        $tagShowAll.focus();
+        $postBlock.show();
+      } else {
+        tag = tag.trim();
+        // $articleTag.filter('.tag-' + tag).focus();
+        for (i = 0; i < $articleTag.length; i++) {
+          cur = $articleTag.eq(i);
+          _tag = cur.data('tag');
+          if (typeof _tag === 'string' && _tag.trim() === tag) {
+            cur.focus();
+            tagStr = cur.children('span').text();
+            (typeof tagStr === 'string') && (tagStr = tagStr.trim());
+            $pageHeading.text('Tag: ' + tagStr);
+            break;
+          }
+        }
+        $postBlock.each(function() {
+          flag = false;
+          cur = $(this);
+          tags = cur.data('tag').split(',');
+          for (i = 0; i < tags.length; i++) {
+            _tag = tags[i].trim();
+            if (_tag === tag) {
+              flag = true;
+              cur.show();
+              break;
+            }
+          }
+          flag || (cur.hide());
+        });
+      }
+      $yearSection.each(function() {
+        flag = false;
+        cur = $(this);
+        lis = cur.find('li');
+        for (i = 0; i < lis.length; i++) {
+          if (lis.eq(i).css('display') !== 'none') {
+            flag = true;
+            break;
+          }
+        }
+        flag ? cur.show() : cur.hide();
+      });
+      tag === undefined || window.history.replaceState(null, '', window.location.href.split('?')[0] + '?tag=' + tag);
+    }
+
+    var query = queryString(),
+      tag = undefined;
+    query.tag === undefined || (tag = query.tag);
+    tagSelect(tag);
+  });
+</script>
+</div>
 </div>
 </div>
     <div class="m-page-footer js-page-footer">
