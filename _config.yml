@@ -14,9 +14,9 @@
 ## Base settings ##
 url: http://www.zhangwenning.top #the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl: /
-title: zhangwenning's Blog
+title: Wenning's blog
 description: > #this means to ignore newlines until "nav_lists:"
-    zhangwenning's Blog
+    Wenning's blog
 
 nav_lists:
   - titles:
@@ -41,16 +41,12 @@ timezone: Asia/Shanghai
 
 ## Author & social ##
 author:
-  name: "zhangwenning"
-  email: 1527841714@qq.com
-  # facebook:  #your Facebook username
-  # twitter: kitian616
-  zhihu: zhang-wen-ning-6
+  name: "Wenning Zhang"
+  motto: "实迷途其未远 觉今是而昨非"
   github:  WenNingZhang
-#  googleplus: 101827554735084402671
-  weibo: 3898699581
-#  douban: kitian616
-  linkedin:  文宁-张-095939122
+  email: 1527847114@qq.com
+#  weibo: 3898699581
+#  linkedin:  文宁-张-095939122
 
 ## Comment system (Disqus) ##
 disqus:
