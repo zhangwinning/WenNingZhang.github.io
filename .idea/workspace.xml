@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="252de518-094a-4f6b-938f-08ffc7afe66a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CNAME" afterPath="$PROJECT_DIR$/CNAME" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -92,6 +91,7 @@
       <find>disqus</find>
       <find>http://wx1.sinaimg.cn/large/e8616f3dly1fm3gqhjp90j21hc0zkqrs.jpg</find>
       <find>tianqi</find>
+      <find>zhangwenning.top</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/assets</dir>
@@ -247,12 +247,12 @@
       <workItem from="1511768090689" duration="105000" />
       <workItem from="1511775332690" duration="4899000" />
       <workItem from="1512270953185" duration="14158000" />
-      <workItem from="1512537103247" duration="911000" />
+      <workItem from="1512537103247" duration="1055000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="26722000" />
+    <option name="totallyTimeSpent" value="26866000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
