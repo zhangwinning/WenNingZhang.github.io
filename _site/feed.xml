@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-12-07T01:07:40+08:00</updated><id>http://localhost:4000///</id><title type="html">Wenning’s blog</title><subtitle>Wenning's blog
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-12-07T10:21:54+08:00</updated><id>http://localhost:4000///</id><title type="html">Wenning’s blog</title><subtitle>Wenning's blog
 </subtitle><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><entry><title type="html">Nginx rewrite用法</title><link href="http://localhost:4000//blog/2017/12/03/nginx-rewrite.html" rel="alternate" type="text/html" title="Nginx rewrite用法" /><published>2017-12-03T16:26:21+08:00</published><updated>2017-12-03T16:26:21+08:00</updated><id>http://localhost:4000//blog/2017/12/03/nginx-rewrite</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/03/nginx-rewrite.html">&lt;p&gt;实现URL的重写以及匹配的URL重定向。&lt;/p&gt;
 
 &lt;!--more--&gt;
@@ -243,8 +243,11 @@ redirect日志:
 
 &lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/e8616f3dgy1fm6z3lz4h1j21kw0zkn3h.jpg&quot; alt=&quot;example image&quot; title=&quot;An exemplary image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;如此的安静空灵的气氛下居然蕴育着无限的希望和力量 :facepunch: :facepunch: :facepunch: :facepunch:&lt;/p&gt;
+&lt;center&gt;:facepunch: :facepunch: :facepunch: :facepunch:最喜欢的一张图，如此的安静空灵的气氛下居然蕴育着无限的希望和力量 :facepunch: :facepunch: :facepunch: :facepunch:&lt;/center&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/e8616f3dgy1fm6z91bswjj21ao0t6qb8.jpg&quot; alt=&quot;example image&quot; title=&quot;An exemplary image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;寒冬将至:snowman: :snowman: :snowman: :snowman:&lt;/p&gt;</content><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><category term="picture_library" /><summary type="html"></summary></entry></feed>
+&lt;center&gt;:snowman: :snowman: :snowman: :snowman:
+凛冬将至:snowman: :snowman: :snowman: :snowman:&lt;/center&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;</content><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><category term="picture_library" /><summary type="html"></summary></entry></feed>
