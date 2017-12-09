@@ -13,10 +13,9 @@
 
 
 
-<title>Blog - Wenning's blog</title>
-<meta name="description" content="Wenning's blog
-">
-<link rel="canonical" href="http://localhost:4000/blog/">
+<title>重写express(二) - Wenning's blog</title>
+<meta name="description" content="继续实现express">
+<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/rewrite-express-2.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="Wenning's blog" href="http://localhost:4000/feed.xml">
@@ -124,31 +123,21 @@
   </nav>
 </header>
 
-  <div class="m-page-main"><div class="m-home">
-  <div class="main">
-    <div class="m-post-list">
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/09/rewrite-express-2.html">重写express(二)</a></h1>
-          <div class="m-article-content">
-            
-              <p>继续实现express</p>
-
-
-            
-          </div>
-          
-          
-          
-          
+  <div class="m-page-main"><div class="m-post">
+	<div class="main js-main">
+		<div class="col-1">
+			<article itemscope itemtype="http://schema.org/BlogPosting">
+				<meta itemprop="mainEntityOfPage" itemscope itemType="https://schema.org/WebPage"/>
+				<header class="article-header">
+					
 
 
 
-          <a href="/blog/2017/12/09/rewrite-express-2.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
+
+
+
+					<h1 itemprop="headline" itemprop="name headline">重写express(二)</h1>
+					<div class="m-article-data clearfix">
 	
     <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
       
@@ -185,236 +174,359 @@
 
 
       
-        <span class="article-meta">2017年 12月09日</span>
+        <time class="article-meta" datetime="2017-12-09T12:21:55+08:00"
+          itemprop="datePublished">2017年 12月09日
+        </time>
       
     </div>
   </div>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/09/rewrite-express-1.html">重写express(一)</a></h1>
-          <div class="m-article-content">
-            
-              <p>一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。</p>
+				</header>
+				<div class="m-article-content js-article-content" itemprop="articleBody"><p>继续实现express</p>
 
+<!--more-->
 
-            
-          </div>
-          
-          
-          
-          
+<h3 id="section">目标：实现一个路由</h3>
 
+<p>app.get(‘/test’, (req, res) =&gt; res.send(‘Hello World!’) );</p>
 
+<h3 id="section-1">预备知识</h3>
 
-          <a href="/blog/2017/12/09/rewrite-express-1.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
+<p>1、Array.prototype.slice.call(arguments);</p>
 
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=express">express</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-10002">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
+<p>把类数组对象转化为数组，并且返回转化后的数组。</p>
 
+<div class="highlighter-rouge"><pre class="highlight"><code>function foo () {
+      console.log(arguments)
+      console.log(Array.prototype.slice.call(arguments))
+      console.log(Array.prototype.slice.call(arguments, 1))
+      console.log(arguments);
+}
+foo ('hello', 'world')
 
-
-      
-        <span class="article-meta">2017年 12月09日</span>
-      
-    </div>
-  </div>
+{ '0': 'hello', '1': 'world' }
+[ 'hello', 'world' ]
+[ 'world' ]
+{ '0': 'hello', '1': 'world' }
+</code></pre>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/03/nginx-rewrite.html">Nginx rewrite用法</a></h1>
-          <div class="m-article-content">
-            
-              <p>实现URL的重写以及匹配的URL重定向。</p>
+<p>2、require模块时，Node对模块进行缓存，第二次require时，是不会重复开销的。</p>
 
+<p>3、router、route、layer 区别
+  1、router 相当于一个中间件容器，每个应用只会创建一个router
+  2、每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空</p>
 
-            
-          </div>
-          
-          
-          
-          
+<h3 id="section-2">流程</h3>
 
+<div class="highlighter-rouge"><pre class="highlight"><code>let express = require('./express');
+let app = express();
 
-
-          <a href="/blog/2017/12/03/nginx-rewrite.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
-
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=Nginx">Nginx</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-10004">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
-
-
-
-      
-        <span class="article-meta">2017年 12月03日</span>
-      
-    </div>
-  </div>
+app.get('/test', (req, res) =&gt; res.send('Hello World!'));
+app.listen(3001, function () {
+    console.log('the server is listening:', 3001);
+});
+</code></pre>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/2017/12/03/pictures.html">picture_library</a></h1>
-          <div class="m-article-content">
-            
-              
+<p>路由get的添加分为三板斧</p>
 
-            
-          </div>
-          
-          
-          
-          
-
-
-
-          <a href="/2017/12/03/pictures.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
-
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=picture_library">picture_library</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-20151212">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
-
-
-
-      
-        <span class="article-meta">2017年 12月03日</span>
-      
-    </div>
-  </div>
+<div class="highlighter-rouge"><pre class="highlight"><code>1、express()   //为应用添加各种请求方法
+2、app.get('/test', (req, res) =&gt; {})  // 构建前端请求和后端处理程序的关联
+3、createServer(app)  // 请求方法的执行，请求到来后，调用函数app()
+</code></pre>
 </div>
 
-        </article>
-      
-    </div>
+<p>具体实现</p>
+
+<p>1、执行express后，会在app对象中添加各种请求方法。</p>
+
+<p>2、构建关联</p>
+
+<p>app[method] 函数会在调用路由中间件（例如 app.get(/test)）时执行。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>methods.forEach(function (method) {
+    app[method] = function (path) {
+        this.lazyrouter();  //新建一个`router`对象
+        let route = this._router.route(path); //新建一个route并添加到刚刚建立的router的stack中，
+        这里实际上是调用的`router`函数
+        route[method].apply(route, slice.call(arguments, 1)); //为route添加stack
+        return this;
+    }
+});
+</code></pre>
+</div>
+<p>this.lazyrouter();</p>
+
+<p>这个方法会创建router对象，而这个对象会一直绑定到应用的_router属性上，创建的router对象在每个应用中只有一个。
+<code class="highlighter-rouge">express.js</code>中的app对象和这里创建的router对象是结构相似的(router对象本身是个函数，并且添加一些属性)。</p>
+
+<p>let route = this._router.route(path);</p>
+
+<p>先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象</p>
+
+<p>let handle = slice.call(arguments, 1);</p>
+
+<p>获取处理函数(数组的形式)</p>
+
+<p>route[method].apply(route, handle);</p>
+
+<p>获取处理函数，再次实例化layer对象，并且设置layer.method = get,然后把新创建的layer放到route对象的stack中。</p>
+
+<p>这时路由和后端程序已经关联好了。</p>
+
+<p>3、根据请求路由调用具体处理函数</p>
+
+<p>请求来到后，实际上调用的是<code class="highlighter-rouge">application.js</code>中的handle函数(获取应用的_router属性，实际上是router对象)
+—-&gt; 调用router.handle() —-&gt;
+根据请求的url和第二步中注册的路由路径判断是否是满足，
+满足的话，调用相应layer对象中的handle对象进行调用</p>
+
+<p><a href="https://github.com/WenNingZhang/rewrite_express.git">项目地址</a></p>
+</div>
+				<footer>
+					
+						
+						
+
+
+
+						
+						
+						
+
+
+
+						<span>更新于
+							<time datetime="2017-12-09T12:22:55+08:00" itemprop="dateModified">2017年 12月09日</time>
+						</span>
+					
+					<div class="article-license">
+						<div class="m-license">
+  
+  <div class="clearfix">
     
+      
+      
+      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-2.md">
+        <img alt="View on Github" src="/assets/images/octocat.jpg" />
+      </a>
+      
+      
+
+
+
+      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-2.md">在 Github 上查阅此文。</a></p>
+    
+    
+    
+
+
+
+    <p>本文遵守 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> 许可协议。</p>
+    
+    
+    <a class="license" rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
+      <img alt="Creative Commons License" src="/assets/images/license-cc4.png" />
+    </a>
+    
+    
+
+
+
+    <p>欢迎转载，转载需注明出处，且禁止用于商业目的。</p>
   </div>
 </div>
+					</div>
+				</footer>
+				
+						<section>
+    <div id="disqus_thread"></div>
+    <script>
+
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+
+    var disqus_config = function () {
+        this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-2.html';
+        this.page.identifier = '10002';
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://wenningzhanggithubio.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+				
+			</article>
+		</div>
+		<div class="col-2">
+			<aside class="js-article-aside"><div class="m-toc js-toc"></div></aside>
+		</div>
+	</div>
+</div>
+
+<script src="//cdn.bootcss.com/toc/0.3.2/toc.min.js"></script>
+<script type="text/javascript">
+	window.throttle = function(func, wait) {
+	  var args, result, thisArg, timeoutId, lastCalled = 0;
+
+	  function trailingCall() {
+	    lastCalled = new Date;
+	    timeoutId = null;
+	    result = func.apply(thisArg, args);
+	  }
+	  return function() {
+	    var now = new Date,
+	      remaining = wait - (now - lastCalled);
+
+	    args = arguments;
+	    thisArg = this;
+
+	    if (remaining <= 0) {
+	      clearTimeout(timeoutId);
+	      timeoutId = null;
+	      lastCalled = now;
+	      result = func.apply(thisArg, args);
+	    } else if (!timeoutId) {
+	      timeoutId = setTimeout(trailingCall, remaining);
+	    }
+	    return result;
+	  };
+	}
+	$(function() {
+	  var $window = $(window);
+	  var $pageStage = $('.js-page-stage');
+	  var $pageMain = $('.js-main');
+	  var $pageFooter = $('.js-page-footer');
+	  var $articleContent = $('.js-article-content');
+	  var $articleAside = $('.js-article-aside');
+	  var $toc = $('.js-toc');
+	  var hasTitle = $articleContent.find('h1, h2, h3').length > 0;
+
+	  function asideSticky() {
+	    return $window.outerWidth() > 1150 && $pageStage.hasClass('has-toc');
+	  }
+
+	  function setTocClass() {
+	    if (hasTitle) {
+	      !$pageStage.hasClass('has-toc') && $pageStage.addClass('has-toc');
+	    }
+	  }
+
+	  setTocClass();
+
+	  function setAsideTOC() {
+	    var asideTop, asideLeft, scrollBottom, asideBottomTop, lastScrollTop;
+
+	    function init() {
+	      var asideOffset = $articleAside.offset();
+	      var footerOffset = $pageFooter.offset();
+	      var mainOffset = $pageMain.offset();
+	      asideTop = mainOffset.top;
+	      asideHeight = $toc.outerHeight() + parseInt($articleAside.css('padding-top'), 10) + parseInt($articleAside.css('padding-bottom'), 10);
+	      asideLeft = mainOffset.left + $pageMain.outerWidth() - $articleAside.outerWidth() - parseInt($pageMain.css('padding-right'), 10);
+	      scrollBottom = footerOffset.top - asideHeight;
+	      asideBottomTop = scrollBottom - mainOffset.top;
+	    }
+
+	    function setAside(force) {
+	      force !== true && (force = false);
+	      var scrollTop = $window.scrollTop();
+	      if (scrollTop >= asideTop && scrollTop <= scrollBottom) {
+	        (!force && lastScrollTop >= asideTop && lastScrollTop <= scrollBottom) ||
+	        $articleAside.addClass('fixed').css({
+	          left: asideLeft + 'px',
+	          top: 0
+	        });
+	      } else if (scrollTop < asideTop) {
+	        (!force && lastScrollTop < asideTop) ||
+	        $articleAside.removeClass('fixed').css({
+	          left: 0,
+	          top: 0
+	        });
+	      } else {
+	        (!force && lastScrollTop > scrollBottom) ||
+	        $articleAside.removeClass('fixed').css({
+	          left: 0,
+	          top: asideBottomTop + 'px'
+	        });
+	      }
+	      lastScrollTop = scrollTop;
+	    }
+	    asideSticky() && (init(), setAside());
+	    $window.on('scroll', function() {
+	      asideSticky() && setAside();
+	    });
+	    $window.on('resize', throttle(function() {
+	      setTocClass();
+	      asideSticky() && (init(), setAside(true));
+	    }, 100));
+	    setTimeout(init, 4000);
+	  }
+	  setTimeout(setAsideTOC, 1000);
+
+	  $toc.toc({
+	    'selectors': 'h1,h2,h3',
+	    'container': '.js-article-content',
+	  });
+	});
+</script>
 
     <script src="https://cdn1.lncld.net/static/js/3.4.1/av-min.js"></script>
-    <script>
+    <script type="text/javascript">
         $(function() {
+            // 初始化
             AV.init({
                 appId: 'nrXA7LIkWRENT2JhjcsfO7Du-gzGzoHsz',
                 appKey: 'til2L3khzfv0JOezoSOuEXdu'
             });
-            $(".article-view").each(function() {
-                var curId = this.id;
-                var query = new AV.Query('blog');
-                query.equalTo('key', curId.substr(9));
-                query.first().then(function(result) {
-                    if (result) {
-                        $('#' + curId).text(result.attributes.views);
-                    }
-                }, function(error) {
-                    if (error) {
-                        throw error;
-                    }
-                });
-            });
-        });
-    </script>
+            // 查询
+            var query = new AV.Query('blog');
+            query.equalTo('key', '10002');
+            query.first().then(function(result) {
+                if (result) {
+                    addOne(result)
+                } else {
+                    //新建
+                    var Blog = AV.Object.extend('blog');
+                    var blog = new Blog();
+                    blog.set('title', '重写express(二)');
+                    blog.set('key', '10002');
+                    blog.set('views', 0);
+                    blog.save().then(function(page) {
+                        addOne(page)
+                    }, function(error) {
+                        if (error) {
+                            throw error;
+                        }
+                    });
+                }
+
+		    function addOne(page) {
+		      page.increment('views', 1);
+		      page.fetchWhenSave(true);
+		      page.save().then(function(page) {
+		        $("#post-key-10002").text(page.attributes.views);
+		      }, function(error) {
+		        if (error) {
+		          throw error;
+		        }
+		      });
+		    }
+		  }, function(error) {
+		    if (error) {
+		      throw error;
+		    }
+		  });
+		});
+	</script>
 
 </div>
 </div>

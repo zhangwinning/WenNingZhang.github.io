@@ -13,10 +13,9 @@
 
 
 
-<title>Blog - Wenning's blog</title>
-<meta name="description" content="Wenning's blog
-">
-<link rel="canonical" href="http://localhost:4000/blog/">
+<title>重写express(一) - Wenning's blog</title>
+<meta name="description" content="一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。">
+<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/rewrite-express-1.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="Wenning's blog" href="http://localhost:4000/feed.xml">
@@ -124,31 +123,21 @@
   </nav>
 </header>
 
-  <div class="m-page-main"><div class="m-home">
-  <div class="main">
-    <div class="m-post-list">
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/09/rewrite-express-2.html">重写express(二)</a></h1>
-          <div class="m-article-content">
-            
-              <p>继续实现express</p>
-
-
-            
-          </div>
-          
-          
-          
-          
+  <div class="m-page-main"><div class="m-post">
+	<div class="main js-main">
+		<div class="col-1">
+			<article itemscope itemtype="http://schema.org/BlogPosting">
+				<meta itemprop="mainEntityOfPage" itemscope itemType="https://schema.org/WebPage"/>
+				<header class="article-header">
+					
 
 
 
-          <a href="/blog/2017/12/09/rewrite-express-2.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
+
+
+
+					<h1 itemprop="headline" itemprop="name headline">重写express(一)</h1>
+					<div class="m-article-data clearfix">
 	
     <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
       
@@ -185,236 +174,341 @@
 
 
       
-        <span class="article-meta">2017年 12月09日</span>
+        <time class="article-meta" datetime="2017-12-09T12:21:55+08:00"
+          itemprop="datePublished">2017年 12月09日
+        </time>
       
     </div>
   </div>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/09/rewrite-express-1.html">重写express(一)</a></h1>
-          <div class="m-article-content">
-            
-              <p>一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。</p>
+				</header>
+				<div class="m-article-content js-article-content" itemprop="articleBody"><p>一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。</p>
 
+<!--more-->
 
-            
-          </div>
-          
-          
-          
-          
+<h2 id="section">预备知识</h2>
 
+<p>1、Object.assign(target，….source)</p>
 
+<p>通过调用该函数可以copy所有可被枚举(enumerable:true)的自有属性(不包括  __<em>proty</em>__)到目标对象中。</p>
 
-          <a href="/blog/2017/12/09/rewrite-express-1.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
+<p>2、 Function.apply(obj，args)</p>
 
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=express">express</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-10002">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
+<p>obj：这个对象将代替Function类里this对象</p>
 
+<p>args：这个是数组，它将作为参数传给Function。</p>
 
+<p>使用apply可以改变程序执行的上下文，控制传参的个数，灵活性更好。</p>
 
-      
-        <span class="article-meta">2017年 12月09日</span>
-      
-    </div>
-  </div>
+<p>3、函数添加属性和方法</p>
+
+<p>js 中函数其实是引用类型，可以随意添加属性和方法。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var app = function() {}
+app.a = '11';
+app.b = '22';
+</code></pre>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/blog/2017/12/03/nginx-rewrite.html">Nginx rewrite用法</a></h1>
-          <div class="m-article-content">
-            
-              <p>实现URL的重写以及匹配的URL重定向。</p>
+<p>上面例子app可以作为一个函数直接执行app()，同时也可以用app.a这样得到它的属性。</p>
 
+<h2 id="section-1">流程</h2>
 
-            
-          </div>
-          
-          
-          
-          
+<p>先要创建一个简单的express应用</p>
 
+<div class="highlighter-rouge"><pre class="highlight"><code>let express = require('./express');
+let app = express();
 
-
-          <a href="/blog/2017/12/03/nginx-rewrite.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
-
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=Nginx">Nginx</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-10004">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
-
-
-
-      
-        <span class="article-meta">2017年 12月03日</span>
-      
-    </div>
-  </div>
+app.listen(3000, function () {
+    console.log('the server is listening:' ,3000);
+});
+</code></pre>
 </div>
 
-        </article>
-      
-        <article>
-          
-          
-          
-          <h1><a href="/2017/12/03/pictures.html">picture_library</a></h1>
-          <div class="m-article-content">
-            
-              
+<h3 id="requireexpress">require(‘./express’)</h3>
 
-            
-          </div>
-          
-          
-          
-          
+<p>当require(’./express’)，实际上是require’./lib/express’，这是express的入口，查看express.js</p>
 
+<div class="highlighter-rouge"><pre class="highlight"><code>exports = module.exports = createApplication;
 
+let application = require('./application');
 
-          <a href="/2017/12/03/pictures.html">点我阅读更多...</a>
-          <div class="m-article-data clearfix">
-	
-    <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
-      
-        <meta itemprop="name" content="Wenning Zhang"/>
-      
-    </meta>
-	
-
-	
-	
-    <ul class="inline-list tag-wrapper">
-      
-      
-        
-        
-        
-        <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=picture_library">picture_library</a>
-        </li>
-      
-    </ul>
-	
-  <div class="other-wrapper">
-    
-      <div class="view-wrapper">
-        <span class="article-view" id="post-key-20151212">0
-        </span> views
-      </div>
-    
-    <div class="date-wrapper">
-      
-      
-
-
-
-      
-        <span class="article-meta">2017年 12月03日</span>
-      
-    </div>
-  </div>
+function createApplication() {
+    let app = function (req, res, next) {
+        res.writeHead('200', {'Content-Type': 'text-plain'});
+        res.end('hello world\n');
+    }
+    Object.assign(app, application);
+    return app;
+}
+</code></pre>
 </div>
 
-        </article>
-      
-    </div>
+<p>所以require(‘./express’)得到的是<code class="highlighter-rouge">createApplication</code>函数。</p>
+
+<h3 id="express">express()</h3>
+
+<p>而 let app = express()就是得到app对象，这个对象中也包含application的属性（listen）。</p>
+
+<h3 id="applisten">app.listen()</h3>
+
+<p>app.listen实际调用的是application.js</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>app.listen = function listen() {
+    var server = http.createServer(this);
+    return server.listen.apply(server, arguments);
+}
+</code></pre>
+</div>
+
+<p>这里的this 是express应用中的app，this在这里是作为函数执行，这个函数会添加到服务器的request事件，这样的话，当每个请求到来后，app函数就是处理函数。</p>
+
+<p>return server.listen.apply(server, arguments);  以server 作为上下文，调用listen方法启动服务器。</p>
+
+</div>
+				<footer>
+					
+						
+						
+
+
+
+						
+						
+						
+
+
+
+						<span>更新于
+							<time datetime="2017-12-09T12:22:55+08:00" itemprop="dateModified">2017年 12月09日</time>
+						</span>
+					
+					<div class="article-license">
+						<div class="m-license">
+  
+  <div class="clearfix">
     
+      
+      
+      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-1.md">
+        <img alt="View on Github" src="/assets/images/octocat.jpg" />
+      </a>
+      
+      
+
+
+
+      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-1.md">在 Github 上查阅此文。</a></p>
+    
+    
+    
+
+
+
+    <p>本文遵守 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> 许可协议。</p>
+    
+    
+    <a class="license" rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
+      <img alt="Creative Commons License" src="/assets/images/license-cc4.png" />
+    </a>
+    
+    
+
+
+
+    <p>欢迎转载，转载需注明出处，且禁止用于商业目的。</p>
   </div>
 </div>
+					</div>
+				</footer>
+				
+						<section>
+    <div id="disqus_thread"></div>
+    <script>
+
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+
+    var disqus_config = function () {
+        this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-1.html';
+        this.page.identifier = '10002';
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://wenningzhanggithubio.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+				
+			</article>
+		</div>
+		<div class="col-2">
+			<aside class="js-article-aside"><div class="m-toc js-toc"></div></aside>
+		</div>
+	</div>
+</div>
+
+<script src="//cdn.bootcss.com/toc/0.3.2/toc.min.js"></script>
+<script type="text/javascript">
+	window.throttle = function(func, wait) {
+	  var args, result, thisArg, timeoutId, lastCalled = 0;
+
+	  function trailingCall() {
+	    lastCalled = new Date;
+	    timeoutId = null;
+	    result = func.apply(thisArg, args);
+	  }
+	  return function() {
+	    var now = new Date,
+	      remaining = wait - (now - lastCalled);
+
+	    args = arguments;
+	    thisArg = this;
+
+	    if (remaining <= 0) {
+	      clearTimeout(timeoutId);
+	      timeoutId = null;
+	      lastCalled = now;
+	      result = func.apply(thisArg, args);
+	    } else if (!timeoutId) {
+	      timeoutId = setTimeout(trailingCall, remaining);
+	    }
+	    return result;
+	  };
+	}
+	$(function() {
+	  var $window = $(window);
+	  var $pageStage = $('.js-page-stage');
+	  var $pageMain = $('.js-main');
+	  var $pageFooter = $('.js-page-footer');
+	  var $articleContent = $('.js-article-content');
+	  var $articleAside = $('.js-article-aside');
+	  var $toc = $('.js-toc');
+	  var hasTitle = $articleContent.find('h1, h2, h3').length > 0;
+
+	  function asideSticky() {
+	    return $window.outerWidth() > 1150 && $pageStage.hasClass('has-toc');
+	  }
+
+	  function setTocClass() {
+	    if (hasTitle) {
+	      !$pageStage.hasClass('has-toc') && $pageStage.addClass('has-toc');
+	    }
+	  }
+
+	  setTocClass();
+
+	  function setAsideTOC() {
+	    var asideTop, asideLeft, scrollBottom, asideBottomTop, lastScrollTop;
+
+	    function init() {
+	      var asideOffset = $articleAside.offset();
+	      var footerOffset = $pageFooter.offset();
+	      var mainOffset = $pageMain.offset();
+	      asideTop = mainOffset.top;
+	      asideHeight = $toc.outerHeight() + parseInt($articleAside.css('padding-top'), 10) + parseInt($articleAside.css('padding-bottom'), 10);
+	      asideLeft = mainOffset.left + $pageMain.outerWidth() - $articleAside.outerWidth() - parseInt($pageMain.css('padding-right'), 10);
+	      scrollBottom = footerOffset.top - asideHeight;
+	      asideBottomTop = scrollBottom - mainOffset.top;
+	    }
+
+	    function setAside(force) {
+	      force !== true && (force = false);
+	      var scrollTop = $window.scrollTop();
+	      if (scrollTop >= asideTop && scrollTop <= scrollBottom) {
+	        (!force && lastScrollTop >= asideTop && lastScrollTop <= scrollBottom) ||
+	        $articleAside.addClass('fixed').css({
+	          left: asideLeft + 'px',
+	          top: 0
+	        });
+	      } else if (scrollTop < asideTop) {
+	        (!force && lastScrollTop < asideTop) ||
+	        $articleAside.removeClass('fixed').css({
+	          left: 0,
+	          top: 0
+	        });
+	      } else {
+	        (!force && lastScrollTop > scrollBottom) ||
+	        $articleAside.removeClass('fixed').css({
+	          left: 0,
+	          top: asideBottomTop + 'px'
+	        });
+	      }
+	      lastScrollTop = scrollTop;
+	    }
+	    asideSticky() && (init(), setAside());
+	    $window.on('scroll', function() {
+	      asideSticky() && setAside();
+	    });
+	    $window.on('resize', throttle(function() {
+	      setTocClass();
+	      asideSticky() && (init(), setAside(true));
+	    }, 100));
+	    setTimeout(init, 4000);
+	  }
+	  setTimeout(setAsideTOC, 1000);
+
+	  $toc.toc({
+	    'selectors': 'h1,h2,h3',
+	    'container': '.js-article-content',
+	  });
+	});
+</script>
 
     <script src="https://cdn1.lncld.net/static/js/3.4.1/av-min.js"></script>
-    <script>
+    <script type="text/javascript">
         $(function() {
+            // 初始化
             AV.init({
                 appId: 'nrXA7LIkWRENT2JhjcsfO7Du-gzGzoHsz',
                 appKey: 'til2L3khzfv0JOezoSOuEXdu'
             });
-            $(".article-view").each(function() {
-                var curId = this.id;
-                var query = new AV.Query('blog');
-                query.equalTo('key', curId.substr(9));
-                query.first().then(function(result) {
-                    if (result) {
-                        $('#' + curId).text(result.attributes.views);
-                    }
-                }, function(error) {
-                    if (error) {
-                        throw error;
-                    }
-                });
-            });
-        });
-    </script>
+            // 查询
+            var query = new AV.Query('blog');
+            query.equalTo('key', '10002');
+            query.first().then(function(result) {
+                if (result) {
+                    addOne(result)
+                } else {
+                    //新建
+                    var Blog = AV.Object.extend('blog');
+                    var blog = new Blog();
+                    blog.set('title', '重写express(一)');
+                    blog.set('key', '10002');
+                    blog.set('views', 0);
+                    blog.save().then(function(page) {
+                        addOne(page)
+                    }, function(error) {
+                        if (error) {
+                            throw error;
+                        }
+                    });
+                }
+
+		    function addOne(page) {
+		      page.increment('views', 1);
+		      page.fetchWhenSave(true);
+		      page.save().then(function(page) {
+		        $("#post-key-10002").text(page.attributes.views);
+		      }, function(error) {
+		        if (error) {
+		          throw error;
+		        }
+		      });
+		    }
+		  }, function(error) {
+		    if (error) {
+		      throw error;
+		    }
+		  });
+		});
+	</script>
 
 </div>
 </div>
