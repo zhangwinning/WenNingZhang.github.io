@@ -12,9 +12,9 @@
 
 
 
-<title>picture_library - Wenning's blog</title>
-<meta name="description" content="">
-<link rel="canonical" href="http://localhost:4000/2017/12/03/pictures.html">
+<title>mongodb aggregate实现一对多、一对一的查询 - Wenning's blog</title>
+<meta name="description" content="MongoDB 3.2原来已经实现一对多、一对一的查询 :wave: :wave:">
+<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/mongodb-lookup.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="Wenning's blog" href="http://localhost:4000/feed.xml">
@@ -61,10 +61,6 @@
     
     <link rel="stylesheet" href="/assets/css/blog.css">
     <style>
-    
-      .m-article-content img:not(.emoji) {
-        box-shadow: 0 0 5px rgba(0, 0, 0, .4);
-      }
     
     </style>
     <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
@@ -141,7 +137,7 @@
 
 
 
-					<h1 itemprop="headline">picture_library</h1>
+					<h1 itemprop="headline">mongodb aggregate实现一对多、一对一的查询</h1>
 					<div class="m-article-data clearfix">
 	
     <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -160,7 +156,7 @@
         
         
         <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=picture_library">picture_library</a>
+          <a class="round-rect-button" href="/blog/all.html?tag=Nginx">Nginx</a>
         </li>
       
     </ul>
@@ -168,7 +164,7 @@
   <div class="other-wrapper">
     
       <div class="view-wrapper">
-        <span class="article-view" id="post-key-20151203">0
+        <span class="article-view" id="post-key-20171202">0
         </span> views
       </div>
     
@@ -179,7 +175,7 @@
 
 
       
-        <time class="article-meta" datetime="2017-12-03T00:00:00+08:00" itemprop="datePublished">2017年 12月03日
+        <time class="article-meta" datetime="2017-12-09T18:39:34+08:00" itemprop="datePublished">2017年 12月09日
         </time>
       
     </div>
@@ -188,26 +184,109 @@
 
 				</header>
 				<div class="m-article-content js-article-content" itemprop="articleBody">
+<p>MongoDB 3.2原来已经实现一对多、一对一的查询 <img class="emoji" title=":wave:" alt=":wave:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44b.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":wave:" alt=":wave:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44b.png" height="20" width="20" align="absmiddle"></p>
+
 <!--more-->
 
-<p><img src="http://wx3.sinaimg.cn/large/e8616f3dgy1fm6z3lz4h1j21kw0zkn3h.jpg" alt="example image" title="An exemplary image"></p>
+<h2 id="section">一对多</h2>
 
-<center>
-<img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle">最喜欢的一张图，如此的安静空灵的气氛下居然蕴育着无限的希望和力量 <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":facepunch:" alt=":facepunch:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f44a.png" height="20" width="20" align="absmiddle">
-</center>
-<p><br></p>
+<p>先创建一张表<code class="highlighter-rouge">countryCode</code></p>
 
-<p><img src="http://wx2.sinaimg.cn/large/e8616f3dgy1fm6z91bswjj21ao0t6qb8.jpg" alt="example image" title="An exemplary image"></p>
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCode.insert([{code: 1}, {code: 20}, {code: 30}])
+</code></pre>
+</div>
 
-<center>
-<img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle">
-凛冬将至<img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle"> <img class="emoji" title=":snowman:" alt=":snowman:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/26c4.png" height="20" width="20" align="absmiddle">
-</center>
-<p><br></p>
+<p><img src="http://wx4.sinaimg.cn/large/e8616f3dly1fmapix2e3zj20xe074myo.jpg" alt=""></p>
+
+<p>第二张表<code class="highlighter-rouge">countryCodeLookup</code>，这张表显示country的code和country的name 的对应关系是<code class="highlighter-rouge">一对多</code></p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCodeLookup.insert([{code: 1, name: "United States"}, {code: 20, name: "Egypt"},
+{code: 1, name: "Foobar"}, {code: 30, name: "Greece"}])
+</code></pre>
+</div>
+
+<p><img src="http://wx2.sinaimg.cn/large/e8616f3dly1fmapiwmxsqj20x30aojtv.jpg" alt=""></p>
+
+<h3 id="lookupproject">$lookup、$project</h3>
+
+<p>下面通过 $lookup 操作符连接两个集合，其中 $project 会过滤属性</p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCode.aggregate([
+{ $lookup: {from: "countryCodeLookup", localField: "code", foreignField: "code", as: "countryName"} },
+{ $project: {"code":1, "countryName.name":1, "_id":0} }
+])
+</code></pre>
+</div>
+
+<p><img src="http://wx1.sinaimg.cn/large/e8616f3dly1fmapiw7q16j20wr0c1tao.jpg" alt=""></p>
+
+<h3 id="match">$match</h3>
+
+<p>$match 会查询连接后的表，显示符合条件的。</p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCode.aggregate([
+{ $lookup: {from: "countryCodeLookup", localField: "code", foreignField: "code", as: "countryName"} },
+{ $project: {"code":1, "countryName.name":1, "_id":0} },
+{ $match:{"code":1.0}}
+])
+</code></pre>
+</div>
+
+<p><img src="http://wx3.sinaimg.cn/large/e8616f3dly1fmapivt4r1j20wa08dmyg.jpg" alt=""></p>
+
+<h2 id="section-1">一对一</h2>
+
+<h3 id="unwind">$unwind</h3>
+
+<p>$unwind操作符会分解$lookup中的as数组，使之扁平化返回。</p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCode.aggregate([
+{ $lookup: {from: "countryCodeLookup", localField: "code", foreignField: "code", as: "countryName"} },
+{ $project: {"code":1, "countryName.name":1, "_id":0} },
+{ $unwind: "$countryName"},
+{ $match:{"code":1.0}}
+])
+</code></pre>
+</div>
+
+<p><img src="http://wx3.sinaimg.cn/large/e8616f3dly1fmapivt4r1j20wa08dmyg.jpg" alt=""></p>
+
+<p>现在countryName是一个子文档，在project中设置把子文档中的属性拿出来，这里$project要在$unwind属性后面。</p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>db.countryCode.aggregate([
+{ $lookup: {from: "countryCodeLookup", localField: "code", foreignField: "code", as: "countryName"} },
+{ $unwind: "$countryName"},
+{ $project: {"code":1, "name": "$countryName.name", "_id":0} }
+])
+</code></pre>
+</div>
+
+<p><img src="http://wx2.sinaimg.cn/large/e8616f3dly1fmapisx2y3j20xw0admyq.jpg" alt=""></p>
+
+<p><a href="https://www.codeproject.com/Articles/1077839/Working-with-MongoDBs-lookup-Aggregator">参考文档</a></p>
 </div>
 				<footer>
 					
-						<meta itemprop="dateModified" content="2017-12-03T00:00:00+08:00">
+						
+						
+
+
+
+						
+						
+						
+
+
+
+						<span>更新于
+							<time datetime="2017-12-09T18:44:34+08:00" itemprop="dateModified">2017年 12月09日</time>
+						</span>
 					
 					<div class="article-license">
 						<div class="m-license">
@@ -216,7 +295,7 @@
     
       
       
-      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-3-pictures.md">
+      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-mongodb-lookup.md">
         <img alt="View on Github" src="/assets/images/octocat.jpg">
       </a>
       
@@ -224,7 +303,7 @@
 
 
 
-      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-3-pictures.md">在 Github 上查阅此文。</a></p>
+      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-mongodb-lookup.md">在 Github 上查阅此文。</a></p>
     
     
     
@@ -257,8 +336,8 @@
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
 
     var disqus_config = function () {
-        this.page.url = 'http://localhost:4000/2017/12/03/pictures.html';
-        this.page.identifier = '20151203';
+        this.page.url = 'http://localhost:4000/blog/2017/12/09/mongodb-lookup.html';
+        this.page.identifier = '20171202';
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
@@ -397,7 +476,7 @@
             });
             // 查询
             var query = new AV.Query('blog');
-            query.equalTo('key', '20151203');
+            query.equalTo('key', '20171202');
             query.first().then(function(result) {
                 if (result) {
                     addOne(result)
@@ -405,8 +484,8 @@
                     //新建
                     var Blog = AV.Object.extend('blog');
                     var blog = new Blog();
-                    blog.set('title', 'picture_library');
-                    blog.set('key', '20151203');
+                    blog.set('title', 'mongodb aggregate实现一对多、一对一的查询');
+                    blog.set('key', '20171202');
                     blog.set('views', 0);
                     blog.save().then(function(page) {
                         addOne(page)
@@ -421,7 +500,7 @@
 		      page.increment('views', 1);
 		      page.fetchWhenSave(true);
 		      page.save().then(function(page) {
-		        $("#post-key-20151203").text(page.attributes.views);
+		        $("#post-key-20171202").text(page.attributes.views);
 		      }, function(error) {
 		        if (error) {
 		          throw error;

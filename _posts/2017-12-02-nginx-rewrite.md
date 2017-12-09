@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Nginx rewrite用法
-key: 10004
+key: 20171202
 tags: Nginx
 category: blog
 date: 2017-12-03T16:26:21+08:00

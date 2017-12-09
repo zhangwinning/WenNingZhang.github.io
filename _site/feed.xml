@@ -1,5 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-12-09T18:06:40+08:00</updated><id>http://localhost:4000///</id><title type="html">Wenning’s blog</title><subtitle>Wenning's blog
-</subtitle><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><entry><title type="html">重写express(二)</title><link href="http://localhost:4000//blog/2017/12/09/rewrite-express-2.html" rel="alternate" type="text/html" title="重写express(二)" /><published>2017-12-09T12:21:55+08:00</published><updated>2017-12-09T12:21:55+08:00</updated><id>http://localhost:4000//blog/2017/12/09/rewrite-express-2</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/09/rewrite-express-2.html">&lt;p&gt;继续实现express&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000//feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000//feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000//" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-12-09T19:07:18+08:00</updated><id>http://localhost:4000///</id><title type="html">Wenning’s blog</title><subtitle>Wenning's blog
+</subtitle><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><entry><title type="html">mongodb aggregate实现一对多、一对一的查询</title><link href="http://localhost:4000//blog/2017/12/09/mongodb-lookup.html" rel="alternate" type="text/html" title="mongodb aggregate实现一对多、一对一的查询" /><published>2017-12-09T18:39:34+08:00</published><updated>2017-12-09T18:39:34+08:00</updated><id>http://localhost:4000//blog/2017/12/09/mongodb-lookup</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/09/mongodb-lookup.html">&lt;p&gt;MongoDB 3.2原来已经实现一对多、一对一的查询 :wave: :wave:&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;一对多&lt;/h2&gt;
+
+&lt;p&gt;先创建一张表&lt;code class=&quot;highlighter-rouge&quot;&gt;countryCode&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCode.insert([{code: 1}, {code: 20}, {code: 30}])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx4.sinaimg.cn/large/e8616f3dly1fmapix2e3zj20xe074myo.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;第二张表&lt;code class=&quot;highlighter-rouge&quot;&gt;countryCodeLookup&lt;/code&gt;，这张表显示country的code和country的name 的对应关系是&lt;code class=&quot;highlighter-rouge&quot;&gt;一对多&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCodeLookup.insert([{code: 1, name: &quot;United States&quot;}, {code: 20, name: &quot;Egypt&quot;},
+{code: 1, name: &quot;Foobar&quot;}, {code: 30, name: &quot;Greece&quot;}])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/e8616f3dly1fmapiwmxsqj20x30aojtv.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;lookupproject&quot;&gt;$lookup、$project&lt;/h3&gt;
+
+&lt;p&gt;下面通过 $lookup 操作符连接两个集合，其中 $project 会过滤属性&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCode.aggregate([
+{ $lookup: {from: &quot;countryCodeLookup&quot;, localField: &quot;code&quot;, foreignField: &quot;code&quot;, as: &quot;countryName&quot;} },
+{ $project: {&quot;code&quot;:1, &quot;countryName.name&quot;:1, &quot;_id&quot;:0} }
+])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/e8616f3dly1fmapiw7q16j20wr0c1tao.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;match&quot;&gt;$match&lt;/h3&gt;
+
+&lt;p&gt;$match 会查询连接后的表，显示符合条件的。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCode.aggregate([
+{ $lookup: {from: &quot;countryCodeLookup&quot;, localField: &quot;code&quot;, foreignField: &quot;code&quot;, as: &quot;countryName&quot;} },
+{ $project: {&quot;code&quot;:1, &quot;countryName.name&quot;:1, &quot;_id&quot;:0} },
+{ $match:{&quot;code&quot;:1.0}}
+])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/e8616f3dly1fmapivt4r1j20wa08dmyg.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;一对一&lt;/h2&gt;
+
+&lt;h3 id=&quot;unwind&quot;&gt;$unwind&lt;/h3&gt;
+
+&lt;p&gt;$unwind操作符会分解$lookup中的as数组，使之扁平化返回。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCode.aggregate([
+{ $lookup: {from: &quot;countryCodeLookup&quot;, localField: &quot;code&quot;, foreignField: &quot;code&quot;, as: &quot;countryName&quot;} },
+{ $project: {&quot;code&quot;:1, &quot;countryName.name&quot;:1, &quot;_id&quot;:0} },
+{ $unwind: &quot;$countryName&quot;},
+{ $match:{&quot;code&quot;:1.0}}
+])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/e8616f3dly1fmapivt4r1j20wa08dmyg.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;现在countryName是一个子文档，在project中设置把子文档中的属性拿出来，这里$project要在$unwind属性后面。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;db.countryCode.aggregate([
+{ $lookup: {from: &quot;countryCodeLookup&quot;, localField: &quot;code&quot;, foreignField: &quot;code&quot;, as: &quot;countryName&quot;} },
+{ $unwind: &quot;$countryName&quot;},
+{ $project: {&quot;code&quot;:1, &quot;name&quot;: &quot;$countryName.name&quot;, &quot;_id&quot;:0} }
+])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/e8616f3dly1fmapisx2y3j20xw0admyq.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.codeproject.com/Articles/1077839/Working-with-MongoDBs-lookup-Aggregator&quot;&gt;参考文档&lt;/a&gt;&lt;/p&gt;</content><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><category term="blog" /><category term="Nginx" /><summary type="html">MongoDB 3.2原来已经实现一对多、一对一的查询 :wave: :wave:</summary></entry><entry><title type="html">重写express(三)</title><link href="http://localhost:4000//blog/2017/12/09/rewrite-express-3.html" rel="alternate" type="text/html" title="重写express(三)" /><published>2017-12-09T12:21:55+08:00</published><updated>2017-12-09T12:21:55+08:00</updated><id>http://localhost:4000//blog/2017/12/09/rewrite-express-3</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/09/rewrite-express-3.html">&lt;p&gt;继续实现express&lt;/p&gt;
 
 &lt;!--more--&gt;
 
@@ -11,7 +90,9 @@
 
 &lt;p&gt;1、Array.prototype.slice.call(arguments);&lt;/p&gt;
 
-&lt;p&gt;把类数组对象转化为数组，并且返回转化后的数组。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;把类数组对象转化为数组，并且返回转化后的数组。&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;function foo () {
       console.log(arguments)
@@ -30,9 +111,12 @@ foo ('hello', 'world')
 
 &lt;p&gt;2、require模块时，Node对模块进行缓存，第二次require时，是不会重复开销的。&lt;/p&gt;
 
-&lt;p&gt;3、router、route、layer 区别
-  1、router 相当于一个中间件容器，每个应用只会创建一个router
-  2、每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空&lt;/p&gt;
+&lt;p&gt;3、router、route、layer 区别&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;router 相当于一个中间件容器，每个应用只会创建一个router。&lt;/li&gt;
+  &lt;li&gt;每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空。&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h3 id=&quot;section-2&quot;&gt;流程&lt;/h3&gt;
 
@@ -73,20 +157,28 @@ app.listen(3001, function () {
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;p&gt;this.lazyrouter();&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;this.lazyrouter();&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;这个方法会创建router对象，而这个对象会一直绑定到应用的_router属性上，创建的router对象在每个应用中只有一个。
 &lt;code class=&quot;highlighter-rouge&quot;&gt;express.js&lt;/code&gt;中的app对象和这里创建的router对象是结构相似的(router对象本身是个函数，并且添加一些属性)。&lt;/p&gt;
 
-&lt;p&gt;let route = this._router.route(path);&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;let route = this._router.route(path);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象&lt;/p&gt;
+&lt;p&gt;先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象。&lt;/p&gt;
 
-&lt;p&gt;let handle = slice.call(arguments, 1);&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;let handle = slice.call(arguments, 1);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;获取处理函数(数组的形式)&lt;/p&gt;
 
-&lt;p&gt;route[method].apply(route, handle);&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;route[method].apply(route, handle);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;获取处理函数，再次实例化layer对象，并且设置layer.method = get,然后把新创建的layer放到route对象的stack中。&lt;/p&gt;
 
@@ -96,8 +188,119 @@ app.listen(3001, function () {
 
 &lt;p&gt;请求来到后，实际上调用的是&lt;code class=&quot;highlighter-rouge&quot;&gt;application.js&lt;/code&gt;中的handle函数(获取应用的_router属性，实际上是router对象)
 —-&amp;gt; 调用router.handle() —-&amp;gt;
-根据请求的url和第二步中注册的路由路径判断是否是满足，
-满足的话，调用相应layer对象中的handle对象进行调用&lt;/p&gt;
+根据请求的url和第二步中注册的路由路径判断是否是满足，满足的话，调用相应layer对象中的handle对象进行调用。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/WenNingZhang/rewrite_express.git&quot;&gt;项目地址&lt;/a&gt;&lt;/p&gt;</content><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><category term="blog" /><category term="express" /><summary type="html">继续实现express</summary></entry><entry><title type="html">重写express(二)</title><link href="http://localhost:4000//blog/2017/12/09/rewrite-express-2.html" rel="alternate" type="text/html" title="重写express(二)" /><published>2017-12-09T12:21:55+08:00</published><updated>2017-12-09T12:21:55+08:00</updated><id>http://localhost:4000//blog/2017/12/09/rewrite-express-2</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/09/rewrite-express-2.html">&lt;p&gt;继续实现express&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;目标：实现一个路由&lt;/h3&gt;
+
+&lt;p&gt;app.get(‘/test’, (req, res) =&amp;gt; res.send(‘Hello World!’) );&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;预备知识&lt;/h3&gt;
+
+&lt;p&gt;1、Array.prototype.slice.call(arguments);&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;把类数组对象转化为数组，并且返回转化后的数组。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;function foo () {
+      console.log(arguments)
+      console.log(Array.prototype.slice.call(arguments))
+      console.log(Array.prototype.slice.call(arguments, 1))
+      console.log(arguments);
+}
+foo ('hello', 'world')
+
+{ '0': 'hello', '1': 'world' }
+[ 'hello', 'world' ]
+[ 'world' ]
+{ '0': 'hello', '1': 'world' }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2、require模块时，Node对模块进行缓存，第二次require时，是不会重复开销的。&lt;/p&gt;
+
+&lt;p&gt;3、router、route、layer 区别&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;router 相当于一个中间件容器，每个应用只会创建一个router。&lt;/li&gt;
+  &lt;li&gt;每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;流程&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let express = require('./express');
+let app = express();
+
+app.get('/test', (req, res) =&amp;gt; res.send('Hello World!'));
+app.listen(3001, function () {
+    console.log('the server is listening:', 3001);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;路由get的添加分为三板斧&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1、express()   //为应用添加各种请求方法
+2、app.get('/test', (req, res) =&amp;gt; {})  // 构建前端请求和后端处理程序的关联
+3、createServer(app)  // 请求方法的执行，请求到来后，调用函数app()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;具体实现&lt;/p&gt;
+
+&lt;p&gt;1、执行express后，会在app对象中添加各种请求方法。&lt;/p&gt;
+
+&lt;p&gt;2、构建关联&lt;/p&gt;
+
+&lt;p&gt;app[method] 函数会在调用路由中间件（例如 app.get(/test)）时执行。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;methods.forEach(function (method) {
+    app[method] = function (path) {
+        this.lazyrouter();  //新建一个`router`对象
+        let route = this._router.route(path); //新建一个route并添加到刚刚建立的router的stack中，
+        这里实际上是调用的`router`函数
+        route[method].apply(route, slice.call(arguments, 1)); //为route添加stack
+        return this;
+    }
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;this.lazyrouter();&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这个方法会创建router对象，而这个对象会一直绑定到应用的_router属性上，创建的router对象在每个应用中只有一个。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;express.js&lt;/code&gt;中的app对象和这里创建的router对象是结构相似的(router对象本身是个函数，并且添加一些属性)。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;let route = this._router.route(path);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;let handle = slice.call(arguments, 1);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;获取处理函数(数组的形式)&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;route[method].apply(route, handle);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;获取处理函数，再次实例化layer对象，并且设置layer.method = get,然后把新创建的layer放到route对象的stack中。&lt;/p&gt;
+
+&lt;p&gt;这时路由和后端程序已经关联好了。&lt;/p&gt;
+
+&lt;p&gt;3、根据请求路由调用具体处理函数&lt;/p&gt;
+
+&lt;p&gt;请求来到后，实际上调用的是&lt;code class=&quot;highlighter-rouge&quot;&gt;application.js&lt;/code&gt;中的handle函数(获取应用的_router属性，实际上是router对象)
+—-&amp;gt; 调用router.handle() —-&amp;gt;
+根据请求的url和第二步中注册的路由路径判断是否是满足，满足的话，调用相应layer对象中的handle对象进行调用。&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://github.com/WenNingZhang/rewrite_express.git&quot;&gt;项目地址&lt;/a&gt;&lt;/p&gt;</content><author><name>Wenning Zhang</name><email>1527847114@qq.com</email></author><category term="blog" /><category term="express" /><summary type="html">继续实现express</summary></entry><entry><title type="html">重写express(一)</title><link href="http://localhost:4000//blog/2017/12/09/rewrite-express-1.html" rel="alternate" type="text/html" title="重写express(一)" /><published>2017-12-09T12:21:55+08:00</published><updated>2017-12-09T12:21:55+08:00</updated><id>http://localhost:4000//blog/2017/12/09/rewrite-express-1</id><content type="html" xml:base="http://localhost:4000//blog/2017/12/09/rewrite-express-1.html">&lt;p&gt;一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。&lt;/p&gt;
 

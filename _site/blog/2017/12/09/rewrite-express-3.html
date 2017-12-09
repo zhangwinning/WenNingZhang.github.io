@@ -13,9 +13,9 @@
 
 
 
-<title>重写express(一) - Wenning's blog</title>
-<meta name="description" content="一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。">
-<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/rewrite-express-1.html">
+<title>重写express(三) - Wenning's blog</title>
+<meta name="description" content="继续实现express">
+<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/rewrite-express-3.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="Wenning's blog" href="http://localhost:4000/feed.xml">
@@ -136,7 +136,7 @@
 
 
 
-					<h1 itemprop="headline" itemprop="name headline">重写express(一)</h1>
+					<h1 itemprop="headline" itemprop="name headline">重写express(三)</h1>
 					<div class="m-article-data clearfix">
 	
     <meta itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -183,89 +183,119 @@
 </div>
 
 				</header>
-				<div class="m-article-content js-article-content" itemprop="articleBody"><p>一直以为学好一个东西最好的方法，就是实现它，接下来就会一步步实现express。</p>
+				<div class="m-article-content js-article-content" itemprop="articleBody"><p>继续实现express</p>
 
 <!--more-->
 
-<h2 id="section">预备知识</h2>
+<h3 id="section">目标：实现一个路由</h3>
 
-<p>1、Object.assign(target，….source)</p>
+<p>app.get(‘/test’, (req, res) =&gt; res.send(‘Hello World!’) );</p>
 
-<p>通过调用该函数可以copy所有可被枚举(enumerable:true)的自有属性(不包括  __<em>proty</em>__)到目标对象中。</p>
+<h3 id="section-1">预备知识</h3>
 
-<p>2、 Function.apply(obj，args)</p>
+<p>1、Array.prototype.slice.call(arguments);</p>
 
-<p>obj：这个对象将代替Function类里this对象</p>
+<ul>
+  <li>把类数组对象转化为数组，并且返回转化后的数组。</li>
+</ul>
 
-<p>args：这个是数组，它将作为参数传给Function。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>function foo () {
+      console.log(arguments)
+      console.log(Array.prototype.slice.call(arguments))
+      console.log(Array.prototype.slice.call(arguments, 1))
+      console.log(arguments);
+}
+foo ('hello', 'world')
 
-<p>使用apply可以改变程序执行的上下文，控制传参的个数，灵活性更好。</p>
-
-<p>3、函数添加属性和方法</p>
-
-<p>js 中函数其实是引用类型，可以随意添加属性和方法。</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>var app = function() {}
-app.a = '11';
-app.b = '22';
+{ '0': 'hello', '1': 'world' }
+[ 'hello', 'world' ]
+[ 'world' ]
+{ '0': 'hello', '1': 'world' }
 </code></pre>
 </div>
 
-<p>上面例子app可以作为一个函数直接执行app()，同时也可以用app.a这样得到它的属性。</p>
+<p>2、require模块时，Node对模块进行缓存，第二次require时，是不会重复开销的。</p>
 
-<h2 id="section-1">流程</h2>
+<p>3、router、route、layer 区别</p>
 
-<p>先要创建一个简单的express应用</p>
+<ul>
+  <li>router 相当于一个中间件容器，每个应用只会创建一个router。</li>
+  <li>每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空。</li>
+</ul>
+
+<h3 id="section-2">流程</h3>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>let express = require('./express');
 let app = express();
 
-app.listen(3000, function () {
-    console.log('the server is listening:' ,3000);
+app.get('/test', (req, res) =&gt; res.send('Hello World!'));
+app.listen(3001, function () {
+    console.log('the server is listening:', 3001);
 });
 </code></pre>
 </div>
 
-<h3 id="requireexpress">require(‘./express’)</h3>
+<p>路由get的添加分为三板斧</p>
 
-<p>当require(’./express’)，实际上是require’./lib/express’，这是express的入口，查看express.js</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>1、express()   //为应用添加各种请求方法
+2、app.get('/test', (req, res) =&gt; {})  // 构建前端请求和后端处理程序的关联
+3、createServer(app)  // 请求方法的执行，请求到来后，调用函数app()
+</code></pre>
+</div>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>exports = module.exports = createApplication;
+<p>具体实现</p>
 
-let application = require('./application');
+<p>1、执行express后，会在app对象中添加各种请求方法。</p>
 
-function createApplication() {
-    let app = function (req, res, next) {
-        res.writeHead('200', {'Content-Type': 'text-plain'});
-        res.end('hello world\n');
+<p>2、构建关联</p>
+
+<p>app[method] 函数会在调用路由中间件（例如 app.get(/test)）时执行。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>methods.forEach(function (method) {
+    app[method] = function (path) {
+        this.lazyrouter();  //新建一个`router`对象
+        let route = this._router.route(path); //新建一个route并添加到刚刚建立的router的stack中，
+        这里实际上是调用的`router`函数
+        route[method].apply(route, slice.call(arguments, 1)); //为route添加stack
+        return this;
     }
-    Object.assign(app, application);
-    return app;
-}
+});
 </code></pre>
 </div>
+<ul>
+  <li><code class="highlighter-rouge">this.lazyrouter();</code></li>
+</ul>
 
-<p>所以require(‘./express’)得到的是<code class="highlighter-rouge">createApplication</code>函数。</p>
+<p>这个方法会创建router对象，而这个对象会一直绑定到应用的_router属性上，创建的router对象在每个应用中只有一个。
+<code class="highlighter-rouge">express.js</code>中的app对象和这里创建的router对象是结构相似的(router对象本身是个函数，并且添加一些属性)。</p>
 
-<h3 id="express">express()</h3>
+<ul>
+  <li><code class="highlighter-rouge">let route = this._router.route(path);</code></li>
+</ul>
 
-<p>而 let app = express()就是得到app对象，这个对象中也包含application的属性（listen）。</p>
+<p>先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象。</p>
 
-<h3 id="applisten">app.listen()</h3>
+<ul>
+  <li><code class="highlighter-rouge">let handle = slice.call(arguments, 1);</code></li>
+</ul>
 
-<p>app.listen实际调用的是application.js</p>
+<p>获取处理函数(数组的形式)</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>app.listen = function listen() {
-    var server = http.createServer(this);
-    return server.listen.apply(server, arguments);
-}
-</code></pre>
-</div>
+<ul>
+  <li><code class="highlighter-rouge">route[method].apply(route, handle);</code></li>
+</ul>
 
-<p>这里的this 是express应用中的app，this在这里是作为函数执行，这个函数会添加到服务器的request事件，这样的话，当每个请求到来后，app函数就是处理函数。</p>
+<p>获取处理函数，再次实例化layer对象，并且设置layer.method = get,然后把新创建的layer放到route对象的stack中。</p>
 
-<p>return server.listen.apply(server, arguments);  以server 作为上下文，调用listen方法启动服务器。</p>
+<p>这时路由和后端程序已经关联好了。</p>
 
+<p>3、根据请求路由调用具体处理函数</p>
+
+<p>请求来到后，实际上调用的是<code class="highlighter-rouge">application.js</code>中的handle函数(获取应用的_router属性，实际上是router对象)
+—-&gt; 调用router.handle() —-&gt;
+根据请求的url和第二步中注册的路由路径判断是否是满足，满足的话，调用相应layer对象中的handle对象进行调用。</p>
+
+<p><a href="https://github.com/WenNingZhang/rewrite_express.git">项目地址</a></p>
 </div>
 				<footer>
 					
@@ -291,7 +321,7 @@ function createApplication() {
     
       
       
-      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-1.md">
+      <a class="octocat" href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-3.md">
         <img alt="View on Github" src="/assets/images/octocat.jpg" />
       </a>
       
@@ -299,7 +329,7 @@ function createApplication() {
 
 
 
-      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-1.md">在 Github 上查阅此文。</a></p>
+      <p><a href="https://github.com/WenNingZhang/WenNingZhang.github.io/tree/master/_posts/2017-12-09-rewrite-express-3.md">在 Github 上查阅此文。</a></p>
     
     
     
@@ -332,7 +362,7 @@ function createApplication() {
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
 
     var disqus_config = function () {
-        this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-1.html';
+        this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-3.html';
         this.page.identifier = '2017120901';
     };
 
@@ -479,7 +509,7 @@ function createApplication() {
                     //新建
                     var Blog = AV.Object.extend('blog');
                     var blog = new Blog();
-                    blog.set('title', '重写express(一)');
+                    blog.set('title', '重写express(三)');
                     blog.set('key', '2017120901');
                     blog.set('views', 0);
                     blog.save().then(function(page) {

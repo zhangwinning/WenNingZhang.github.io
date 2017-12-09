@@ -163,7 +163,7 @@
   <div class="other-wrapper">
     
       <div class="view-wrapper">
-        <span class="article-view" id="post-key-10002">0
+        <span class="article-view" id="post-key-2017120901">0
         </span> views
       </div>
     
@@ -195,7 +195,9 @@
 
 <p>1、Array.prototype.slice.call(arguments);</p>
 
-<p>把类数组对象转化为数组，并且返回转化后的数组。</p>
+<ul>
+  <li>把类数组对象转化为数组，并且返回转化后的数组。</li>
+</ul>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>function foo () {
       console.log(arguments)
@@ -214,9 +216,12 @@ foo ('hello', 'world')
 
 <p>2、require模块时，Node对模块进行缓存，第二次require时，是不会重复开销的。</p>
 
-<p>3、router、route、layer 区别
-  1、router 相当于一个中间件容器，每个应用只会创建一个router
-  2、每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空</p>
+<p>3、router、route、layer 区别</p>
+
+<ul>
+  <li>router 相当于一个中间件容器，每个应用只会创建一个router。</li>
+  <li>每个路由中间件会对应一个layer对象，而判断路由中间件和普通中间件区别是判断layer.route是否为空。</li>
+</ul>
 
 <h3 id="section-2">流程</h3>
 
@@ -257,20 +262,28 @@ app.listen(3001, function () {
 });
 </code></pre>
 </div>
-<p>this.lazyrouter();</p>
+<ul>
+  <li><code class="highlighter-rouge">this.lazyrouter();</code></li>
+</ul>
 
 <p>这个方法会创建router对象，而这个对象会一直绑定到应用的_router属性上，创建的router对象在每个应用中只有一个。
 <code class="highlighter-rouge">express.js</code>中的app对象和这里创建的router对象是结构相似的(router对象本身是个函数，并且添加一些属性)。</p>
 
-<p>let route = this._router.route(path);</p>
+<ul>
+  <li><code class="highlighter-rouge">let route = this._router.route(path);</code></li>
+</ul>
 
-<p>先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象</p>
+<p>先创建一个Route对象，创建layer对象，把layer对象的route属性指向Route对象，把新创建的layer对象放到router的stack中，返回route对象。</p>
 
-<p>let handle = slice.call(arguments, 1);</p>
+<ul>
+  <li><code class="highlighter-rouge">let handle = slice.call(arguments, 1);</code></li>
+</ul>
 
 <p>获取处理函数(数组的形式)</p>
 
-<p>route[method].apply(route, handle);</p>
+<ul>
+  <li><code class="highlighter-rouge">route[method].apply(route, handle);</code></li>
+</ul>
 
 <p>获取处理函数，再次实例化layer对象，并且设置layer.method = get,然后把新创建的layer放到route对象的stack中。</p>
 
@@ -280,8 +293,7 @@ app.listen(3001, function () {
 
 <p>请求来到后，实际上调用的是<code class="highlighter-rouge">application.js</code>中的handle函数(获取应用的_router属性，实际上是router对象)
 —-&gt; 调用router.handle() —-&gt;
-根据请求的url和第二步中注册的路由路径判断是否是满足，
-满足的话，调用相应layer对象中的handle对象进行调用</p>
+根据请求的url和第二步中注册的路由路径判断是否是满足，满足的话，调用相应layer对象中的handle对象进行调用。</p>
 
 <p><a href="https://github.com/WenNingZhang/rewrite_express.git">项目地址</a></p>
 </div>
@@ -351,7 +363,7 @@ app.listen(3001, function () {
 
     var disqus_config = function () {
         this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-2.html';
-        this.page.identifier = '10002';
+        this.page.identifier = '2017120901';
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
@@ -489,7 +501,7 @@ app.listen(3001, function () {
             });
             // 查询
             var query = new AV.Query('blog');
-            query.equalTo('key', '10002');
+            query.equalTo('key', '2017120901');
             query.first().then(function(result) {
                 if (result) {
                     addOne(result)
@@ -498,7 +510,7 @@ app.listen(3001, function () {
                     var Blog = AV.Object.extend('blog');
                     var blog = new Blog();
                     blog.set('title', '重写express(二)');
-                    blog.set('key', '10002');
+                    blog.set('key', '2017120901');
                     blog.set('views', 0);
                     blog.save().then(function(page) {
                         addOne(page)
@@ -513,7 +525,7 @@ app.listen(3001, function () {
 		      page.increment('views', 1);
 		      page.fetchWhenSave(true);
 		      page.save().then(function(page) {
-		        $("#post-key-10002").text(page.attributes.views);
+		        $("#post-key-2017120901").text(page.attributes.views);
 		      }, function(error) {
 		        if (error) {
 		          throw error;
