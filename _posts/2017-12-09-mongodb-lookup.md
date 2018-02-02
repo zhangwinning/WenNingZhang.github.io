@@ -1,11 +1,11 @@
 ---
 layout: post
 title: mongodb aggregate实现一对多、一对一的查询
-key: 20171202
-tags: Nginx
+key: 20171204
+tags: MongoDB
 category: blog
-date: 2017-12-09T18:39:34+08:00
-modify_date: 2017-12-09T18:44:34+08:00
+date: 2017-12-10T00:12:27+08:00
+modify_date: 2017-12-11T00:12:27+08:00
 ---
 
  MongoDB 3.2原来已经实现一对多、一对一的查询 :wave: :wave:

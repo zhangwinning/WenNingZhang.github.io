@@ -14,7 +14,7 @@
 
 <title>mongodb aggregate实现一对多、一对一的查询 - Wenning's blog</title>
 <meta name="description" content="MongoDB 3.2原来已经实现一对多、一对一的查询 :wave: :wave:">
-<link rel="canonical" href="http://localhost:4000/blog/2017/12/09/mongodb-lookup.html">
+<link rel="canonical" href="http://localhost:4000/blog/2017/12/10/mongodb-lookup.html">
 
 
 <link rel="alternate" type="application/rss+xml" title="Wenning's blog" href="http://localhost:4000/feed.xml">
@@ -156,7 +156,7 @@
         
         
         <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=Nginx">Nginx</a>
+          <a class="round-rect-button" href="/blog/all.html?tag=MongoDB">MongoDB</a>
         </li>
       
     </ul>
@@ -164,7 +164,7 @@
   <div class="other-wrapper">
     
       <div class="view-wrapper">
-        <span class="article-view" id="post-key-20171202">0
+        <span class="article-view" id="post-key-20171204">0
         </span> views
       </div>
     
@@ -175,7 +175,7 @@
 
 
       
-        <time class="article-meta" datetime="2017-12-09T18:39:34+08:00" itemprop="datePublished">2017年 12月09日
+        <time class="article-meta" datetime="2017-12-10T00:12:27+08:00" itemprop="datePublished">2017年 12月10日
         </time>
       
     </div>
@@ -285,7 +285,7 @@
 
 
 						<span>更新于
-							<time datetime="2017-12-09T18:44:34+08:00" itemprop="dateModified">2017年 12月09日</time>
+							<time datetime="2017-12-11T00:12:27+08:00" itemprop="dateModified">2017年 12月11日</time>
 						</span>
 					
 					<div class="article-license">
@@ -336,8 +336,8 @@
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
 
     var disqus_config = function () {
-        this.page.url = 'http://localhost:4000/blog/2017/12/09/mongodb-lookup.html';
-        this.page.identifier = '20171202';
+        this.page.url = 'http://localhost:4000/blog/2017/12/10/mongodb-lookup.html';
+        this.page.identifier = '20171204';
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
@@ -476,7 +476,7 @@
             });
             // 查询
             var query = new AV.Query('blog');
-            query.equalTo('key', '20171202');
+            query.equalTo('key', '20171204');
             query.first().then(function(result) {
                 if (result) {
                     addOne(result)
@@ -485,7 +485,7 @@
                     var Blog = AV.Object.extend('blog');
                     var blog = new Blog();
                     blog.set('title', 'mongodb aggregate实现一对多、一对一的查询');
-                    blog.set('key', '20171202');
+                    blog.set('key', '20171204');
                     blog.set('views', 0);
                     blog.save().then(function(page) {
                         addOne(page)
@@ -500,7 +500,7 @@
 		      page.increment('views', 1);
 		      page.fetchWhenSave(true);
 		      page.save().then(function(page) {
-		        $("#post-key-20171202").text(page.attributes.views);
+		        $("#post-key-20171204").text(page.attributes.views);
 		      }, function(error) {
 		        if (error) {
 		          throw error;

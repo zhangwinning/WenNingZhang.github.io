@@ -155,7 +155,7 @@
         
         
         <li>
-          <a class="round-rect-button" href="/blog/all.html?tag=express">express</a>
+          <a class="round-rect-button" href="/blog/all.html?tag=Express">Express</a>
         </li>
       
     </ul>
@@ -163,7 +163,7 @@
   <div class="other-wrapper">
     
       <div class="view-wrapper">
-        <span class="article-view" id="post-key-2017120901">0
+        <span class="article-view" id="post-key-20171209013">0
         </span> views
       </div>
     
@@ -363,7 +363,7 @@ app.listen(3001, function () {
 
     var disqus_config = function () {
         this.page.url = 'http://localhost:4000/blog/2017/12/09/rewrite-express-3.html';
-        this.page.identifier = '2017120901';
+        this.page.identifier = '20171209013';
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
@@ -501,7 +501,7 @@ app.listen(3001, function () {
             });
             // 查询
             var query = new AV.Query('blog');
-            query.equalTo('key', '2017120901');
+            query.equalTo('key', '20171209013');
             query.first().then(function(result) {
                 if (result) {
                     addOne(result)
@@ -510,7 +510,7 @@ app.listen(3001, function () {
                     var Blog = AV.Object.extend('blog');
                     var blog = new Blog();
                     blog.set('title', '重写express(三)');
-                    blog.set('key', '2017120901');
+                    blog.set('key', '20171209013');
                     blog.set('views', 0);
                     blog.save().then(function(page) {
                         addOne(page)
@@ -525,7 +525,7 @@ app.listen(3001, function () {
 		      page.increment('views', 1);
 		      page.fetchWhenSave(true);
 		      page.save().then(function(page) {
-		        $("#post-key-2017120901").text(page.attributes.views);
+		        $("#post-key-20171209013").text(page.attributes.views);
 		      }, function(error) {
 		        if (error) {
 		          throw error;
